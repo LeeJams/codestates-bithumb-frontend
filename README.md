@@ -2,17 +2,17 @@
 
 빗썸 테크 아카데미 (FE 심화 과정)-기술 과제
 
-- 완성된 GIF 파일 및 배포 링크
+### 완성된 GIF 파일 및 배포 링크
 
 
 ### 프로젝트 실행 방법
-## Project Setup
+##### Project Setup
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+##### Compile and Hot-Reload for Development
 
 ```sh
 npm run dev
