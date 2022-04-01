@@ -1,5 +1,10 @@
 <template>
-  <q-card class="my-card text-white" :style="bgColor">
+  <q-card
+    class="my-card text-white"
+    :style="bgColor"
+    @click="$router.push(`/${coinData.symbol}`)"
+    style="cursor: pointer"
+  >
     <q-card-section>
       <div class="text-h6">{{ title }}</div>
       <br />

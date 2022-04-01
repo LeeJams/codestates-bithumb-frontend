@@ -2,7 +2,6 @@ export interface CoinTickerData {
   content: CoinContent;
   type: string;
 }
-
 export interface CoinContent {
   buyVolume: string; // 매수누적거래량
   chgAmt: string; // 변동금액
@@ -20,4 +19,19 @@ export interface CoinContent {
   value: string; // 누적거래금액
   volume: string; // 누적거래량
   volumePower: string; // 체결강도
+}
+export interface Transaction {
+  contents: {
+    list: TransactionContents[];
+  };
+  type: string;
+}
+export interface TransactionContents {
+  buySellGb: string; // 체결종류(1:매도체결, 2:매수체결)
+  contAmt: string; // 체결금액
+  contDtm: string; // 체결시각
+  contPrice: string; // 체결가격
+  contQty: string; // 체결수량
+  symbol: string; // 통화코드
+  updn: string; // 직전 시세와 비교 : up-상승, dn-하락
 }
