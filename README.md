@@ -22,12 +22,12 @@ npm run dev
 <hr />
 
 ### 사용한 스택 목록
-VueJs 3, TypeScript, CharJs, WebSocket, Quasar, Git
+VueJs 3, TypeScript, Apex Charts, WebSocket, Quasar, Git
 
 <hr />
 
 ### 구현한 기능 목록 (Software Requirement Specification)
-빗썸의 Public WebSocket API를 활용하여 BTC(비트코인)과 ETH(이더리움)의 일자, 시간, 시가, 종가, 저가, 고가 등의 데이터를 실시간으로 가져와 보여주고, 데이터와 Chart.Js를 이용하여 시각적인 요소를 더해줬습니다.
+빗썸의 Public WebSocket API를 활용하여 BTC(비트코인)과 ETH(이더리움)의 일자, 시간, 시가, 종가, 저가, 고가 등의 데이터를 실시간으로 가져와 보여주고, 데이터와 Apex Charts를 이용하여 시각적인 요소를 더해줬습니다.
 
 <hr />
 
