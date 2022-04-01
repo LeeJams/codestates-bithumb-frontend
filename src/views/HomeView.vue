@@ -2,8 +2,8 @@
   <div class="container">
     <div class="logo"></div>
     <div style="display: flex">
-      <CardView :coinData="btcCoinData" title="BitCoin - 비트코인"></CardView>
-      <CardView :coinData="ethCoinData" title="Ethereum - 이더리움"></CardView>
+      <!-- <CardView :coinData="btcCoinData" title="BitCoin - 비트코인"></CardView>
+      <CardView :coinData="ethCoinData" title="Ethereum - 이더리움"></CardView> -->
     </div>
     <div style="display: flex; justify-content: space-around">
       <ChartView :series="btcChartData" title="비트코인" />
@@ -15,7 +15,7 @@
 import type { CoinContent, CoinTickerData } from "@/types/dataType";
 import { onMounted, ref } from "vue";
 import ChartView from "@/components/ChartView.vue";
-import CardView from "@/components/CardView.vue";
+// import CardView from "@/components/CardView.vue";
 
 const btcCoinData = ref<CoinContent>();
 const ethCoinData = ref<CoinContent>();
