@@ -1,65 +1,35 @@
 <template>
-  <LineChart v-bind="lineChartProps" />
+  <div id="chart" style="width: 40%">
+    <apexchart
+      type="candlestick"
+      height="350"
+      :options="options"
+      :series="series"
+    ></apexchart>
+  </div>
 </template>
 <script setup lang="ts">
-import { computed, type PropType } from "vue";
-import { LineChart, useLineChart } from "vue-chart-3";
-import { Chart, registerables } from "chart.js";
-import type { ChartData, ChartOptions } from "chart.js";
+import { ref } from "vue";
 
 const props = defineProps({
-  btcChartData: {
-    type: Array as PropType<{ time: string; price: number }[]>,
+  series: {
+    type: Array,
     default: () => [],
   },
-  ethChartData: {
-    type: Array as PropType<{ time: string; price: number }[]>,
-    default: () => [],
+  title: {
+    type: String,
+    default: "",
   },
 });
 
-Chart.register(...registerables);
-
-const btcPrices = computed(() => props.btcChartData.map((n) => n.price));
-const ethPrices = computed(() => props.ethChartData.map((n) => n.price));
-const labels = computed(() => props.btcChartData.map((n) => n.time));
-
-const testData = computed<ChartData<"line">>(() => ({
-  labels: labels.value,
-  datasets: [
-    {
-      label: "비트코인",
-      data: btcPrices.value,
-      backgroundColor: "#f75467",
-      borderColor: "#f75467",
-      spanGaps: true,
-    },
-    {
-      label: "이더리움",
-      data: ethPrices.value,
-      backgroundColor: "#4386f9",
-      borderColor: "#4386f9",
-      spanGaps: true,
-    },
-  ],
-}));
-
-const options = computed<ChartOptions<"line">>(() => ({
-  responsive: true,
-  plugins: {
-    legend: {
-      position: "top",
-    },
+const options = {
+  chart: {
+    type: "candlestick",
+    height: 500,
   },
-  fill: false,
-  interaction: {
-    intersect: false,
+  title: {
+    text: props.title,
+    align: "left",
   },
-  radius: 0,
-}));
-
-const { lineChartProps } = useLineChart({
-  chartData: testData,
-  options,
-});
+};
 </script>

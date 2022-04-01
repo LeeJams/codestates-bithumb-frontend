@@ -1,5 +1,5 @@
 <template>
-  <q-card class="my-card text-white">
+  <q-card class="my-card text-white" :style="bgColor">
     <q-card-section>
       <div class="text-h6">{{ title }}</div>
       <br />
@@ -77,10 +77,15 @@ const props = defineProps({
 const dayToDay = computed(() =>
   Number(props.coinData.chgRate) > 0 ? "color: #f75467" : "color: #4386f9"
 );
+
+const bgColor = computed(() =>
+  Number(props.coinData.chgRate) > 0
+    ? "background: radial-gradient(circle, rgb(183 20 20) 0%, rgb(38 1 1) 100%);"
+    : "background: radial-gradient(circle, rgb(15 63 103) 0%, rgb(1 21 38) 100%);"
+);
 </script>
 <style scoped>
 .my-card {
-  background: radial-gradient(circle, rgb(42 112 171) 0%, rgb(1 21 38) 100%);
   margin: 50px 10px;
   width: 47%;
 }
