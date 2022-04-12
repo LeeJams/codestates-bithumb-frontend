@@ -1,20 +1,15 @@
 <template>
   <div class="container">
     <div class="logo"></div>
-    <div style="display: flex">
+    <div class="card">
       <CardView :coinData="btcCoinData" title="BitCoin - 비트코인"></CardView>
       <CardView :coinData="ethCoinData" title="Ethereum - 이더리움"></CardView>
-    </div>
-    <div style="display: flex; justify-content: space-around">
-      <ChartView :series="btcChartData" title="비트코인" />
-      <ChartView :series="ethChartData" title="이더리움" />
     </div>
   </div>
 </template>
 <script setup lang="ts">
 import type { CoinContent, CoinTickerData } from "@/types/dataType";
 import { onBeforeUnmount, onMounted, ref } from "vue";
-import ChartView from "@/components/ChartView.vue";
 import CardView from "@/components/CardView.vue";
 
 const btcCoinData = ref<CoinContent>();
@@ -102,20 +97,6 @@ onMounted(() => {
   };
 });
 onBeforeUnmount(() => {
-  socket.value.onclose;
+  socket.value.close();
 });
 </script>
-
-<style>
-.container {
-  width: 70%;
-  margin: 0 auto;
-}
-.logo {
-  width: 132px;
-  height: 39px;
-  background-image: url(https://www.bithumb.com/resources/img/sprite/sp_main_new.png?v=bithumb.2.0.5);
-  background-repeat: no-repeat;
-  margin: 50px auto;
-}
-</style>

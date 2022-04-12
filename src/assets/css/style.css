@@ -1,0 +1,36 @@
+body {
+  background-color: #292a2d;
+  color: rgb(255, 255, 255);
+}
+.logo {
+  width: 132px;
+  height: 39px;
+  background-image: url(https://www.bithumb.com/resources/img/sprite/sp_main_new.png?v=bithumb.2.0.5);
+  background-repeat: no-repeat;
+  margin: 50px auto;
+}
+.container {
+  width: 80%;
+  margin: 0 auto;
+}
+.card {
+  display: flex;
+}
+.chart {
+  display: flex;
+  justify-content: space-around;
+}
+.my-card {
+  margin: 50px 10px;
+  width: 47%;
+}
+@media (max-width: 700px) {
+  .card {
+    display: block;
+    width: 100%;
+  }
+  .my-card {
+    margin: 50px 10px;
+    width: 100%;
+  }
+}

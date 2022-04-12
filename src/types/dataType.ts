@@ -21,10 +21,10 @@ export interface CoinContent {
   volumePower: string; // 체결강도
 }
 export interface Transaction {
-  contents: {
+  content: {
     list: TransactionContents[];
   };
-  type: string;
+  type: "transaction";
 }
 export interface TransactionContents {
   buySellGb: string; // 체결종류(1:매도체결, 2:매수체결)
@@ -34,4 +34,18 @@ export interface TransactionContents {
   contQty: string; // 체결수량
   symbol: string; // 통화코드
   updn: string; // 직전 시세와 비교 : up-상승, dn-하락
+}
+export interface Orderbook {
+  content: {
+    datetime: string;
+    list: OrderbookContents[];
+  };
+  type: "orderbookdepth";
+}
+export interface OrderbookContents {
+  orderType: string; // 주문타입 – bid / ask
+  price: string; // 호가
+  quantity: string; // 잔량
+  symbol: string; // 체결가격
+  total: string; // 건수
 }

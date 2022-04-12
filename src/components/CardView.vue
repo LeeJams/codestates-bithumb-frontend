@@ -89,9 +89,3 @@ const bgColor = computed(() =>
     : "background: radial-gradient(circle, rgb(15 63 103) 0%, rgb(1 21 38) 100%);"
 );
 </script>
-<style scoped>
-.my-card {
-  margin: 50px 10px;
-  width: 47%;
-}
-</style>
