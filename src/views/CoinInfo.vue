@@ -61,12 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  Transaction,
-  TransactionContents,
-  Orderbook,
-  OrderbookContents,
-} from "@/types/dataType";
+import type { TransactionContents, OrderbookContents } from "@/types/dataType";
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import ChartView from "@/components/ChartView.vue";
