@@ -24,6 +24,40 @@ body {
   margin: 50px 10px;
   width: 47%;
 }
+.redColor span {
+  color: #f75467;
+}
+.blueColor span {
+  color: #4386f9;
+}
+.bgRed {
+  background: radial-gradient(circle, rgb(183 20 20) 0%, rgb(38 1 1) 100%);
+}
+.bgBlue {
+  background: radial-gradient(circle, rgb(15 63 103) 0%, rgb(1 21 38) 100%);
+}
+.coin_header {
+  display: flex;
+  justify-content: space-evenly;
+}
+.container section {
+  display: flex;
+  justify-content: space-evenly;
+  margin-top: 30px;
+}
+.container section .item_box {
+  width: 45%;
+  height: 500px;
+  border: 1px solid;
+  padding: 15px;
+}
+.container section .item_box .item {
+  overflow: auto;
+  height: 90%;
+}
+.container section .item_box .item table{
+  width: 100%;
+}
 @media (max-width: 700px) {
   .card {
     display: block;

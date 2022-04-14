@@ -20,6 +20,14 @@ export interface CoinContent {
   volume: string; // 누적거래량
   volumePower: string; // 체결강도
 }
+
+export interface ChartData {
+  x: number;
+  o: number;
+  h: number;
+  l: number;
+  c: number;
+}
 export interface Transaction {
   content: {
     list: TransactionContents[];

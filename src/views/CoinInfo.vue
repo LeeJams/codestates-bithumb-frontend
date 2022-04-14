@@ -1,23 +1,12 @@
 <template>
   <div class="container">
-    <header>
-      <h4>비트코인 {{ route.params.coinName }}</h4>
-      <div style="display: flex; justify-content: space-evenly">
-        <p><b>시</b><span>55771000</span></p>
-        <p><b>고</b><span>55771000</span></p>
-        <p><b>저</b><span>55771000</span></p>
-        <p><b>종</b><span>55771000</span></p>
-        <p><b>전일대비</b><span>55771000</span></p>
-      </div>
-    </header>
-    <ChartView />
-    <section
-      style="display: flex; justify-content: space-evenly; margin-top: 30px"
-    >
-      <div style="width: 45%; height: 500px; border: 1px solid; padding: 15px">
+    <HeaderInfo :coinData="coinData" />
+    <ChartView :coinData="coinData" />
+    <section>
+      <div class="item_box">
         <p>체결내역</p>
-        <div style="overflow: auto; height: 90%">
-          <table style="width: 100%">
+        <div class="item">
+          <table>
             <thead>
               <th>시간</th>
               <th>가격(KRW)</th>
@@ -39,10 +28,10 @@
           </table>
         </div>
       </div>
-      <div style="width: 45%; height: 500px; border: 1px solid; padding: 15px">
+      <div class="item_box">
         <p>모아보기</p>
-        <div style="overflow: auto; height: 90%">
-          <table style="width: 100%">
+        <div class="item">
+          <table>
             <thead>
               <th>가격(KRW)</th>
               <th>수량(BTC)</th>
@@ -61,39 +50,22 @@
 </template>
 
 <script setup lang="ts">
-import type { TransactionContents, OrderbookContents } from "@/types/dataType";
+import type {
+  TransactionContents,
+  OrderbookContents,
+  CoinContent,
+  ChartData,
+} from "@/types/dataType";
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import ChartView from "@/components/ChartView.vue";
-
-const numberFormat = (number: string) => {
-  return new Intl.NumberFormat("ko-KR", {
-    style: "currency",
-    currency: "KRW",
-  }).format(Number(number));
-};
+import { numberFormat } from "@/utils/common";
+import HeaderInfo from "./coin-components/HeaderInfo.vue";
 
 const route = useRoute();
 const transactionData = ref<TransactionContents[]>([]);
 const orderbookData = ref<OrderbookContents[]>([]);
-const columns = [
-  {
-    name: "contDtm",
-    label: "체결시각",
-    field: "contDtm",
-  },
-  {
-    name: "contAmt",
-    label: "체결금액",
-    field: "contDtm",
-  },
-  {
-    name: "contQty",
-    label: "체결가격",
-    field: "contQty",
-  },
-  { name: "symbol", label: "통화코드", field: "symbol" },
-];
+const coinData = ref<CoinContent>();
 
 const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
 const transaction = JSON.stringify({
@@ -104,15 +76,21 @@ const orderbook = JSON.stringify({
   type: "orderbookdepth",
   symbols: [route.params.coinName],
 });
+const ticker = JSON.stringify({
+  type: "ticker",
+  symbols: [route.params.coinName],
+  tickTypes: ["30M"],
+});
 
 const onOpen = () => {
   socket.value.send(transaction);
   socket.value.send(orderbook);
+  socket.value.send(ticker);
 };
 
 const onMessage = (event: MessageEvent) => {
   const data = JSON.parse(event.data);
-  console.log(data);
+  // console.log(data);
   if (data?.type === "transaction") {
     transactionData.value = [
       data.content.list[0],
@@ -120,6 +98,8 @@ const onMessage = (event: MessageEvent) => {
     ];
   } else if (data?.type === "orderbookdepth") {
     orderbookData.value = data.content.list;
+  } else if (data?.type === "ticker") {
+    coinData.value = data.content;
   }
 };
 

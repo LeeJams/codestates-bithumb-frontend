@@ -1,45 +1,35 @@
 <template>
   <q-card
     class="my-card text-white"
-    :style="bgColor"
+    :class="isUp ? 'bgRed' : 'bgBlue'"
     @click="$router.push(`/${coinData.symbol}`)"
     style="cursor: pointer"
   >
-    <q-card-section>
+    <q-card-section :class="isUp ? 'redColor' : 'blueColor'">
       <div class="text-h6">{{ title }}</div>
       <br />
       <div class="text-subtitle2">
         전일대비
-        <span :style="dayToDay"
-          >{{ coinData.chgRate }}% ({{
-            Number(coinData.chgAmt).toLocaleString()
-          }})</span
+        <span
+          >{{ coinData.chgRate }}% ({{ numberFormat(coinData.chgAmt) }})</span
         >
       </div>
       <br />
       <div class="text-subtitle2">
         시
-        <span :style="dayToDay">{{
-          Number(coinData.openPrice).toLocaleString()
-        }}</span>
+        <span>{{ numberFormat(coinData.openPrice) }}</span>
       </div>
       <div class="text-subtitle2">
         고
-        <span :style="dayToDay">{{
-          Number(coinData.highPrice).toLocaleString()
-        }}</span>
+        <span>{{ numberFormat(coinData.highPrice) }}</span>
       </div>
       <div class="text-subtitle2">
         저
-        <span :style="dayToDay">{{
-          Number(coinData.lowPrice).toLocaleString()
-        }}</span>
+        <span>{{ numberFormat(coinData.lowPrice) }}</span>
       </div>
       <div class="text-subtitle2">
         종
-        <span :style="dayToDay">{{
-          Number(coinData.closePrice).toLocaleString()
-        }}</span>
+        <span>{{ numberFormat(coinData.closePrice) }}</span>
       </div>
     </q-card-section>
 
@@ -67,6 +57,7 @@
 <script setup lang="ts">
 import type { CoinContent } from "@/types/dataType";
 import { computed, type PropType } from "vue";
+import { numberFormat } from "@/utils/common";
 
 const props = defineProps({
   coinData: {
@@ -79,13 +70,5 @@ const props = defineProps({
   },
 });
 
-const dayToDay = computed(() =>
-  Number(props.coinData.chgRate) > 0 ? "color: #f75467" : "color: #4386f9"
-);
-
-const bgColor = computed(() =>
-  Number(props.coinData.chgRate) > 0
-    ? "background: radial-gradient(circle, rgb(183 20 20) 0%, rgb(38 1 1) 100%);"
-    : "background: radial-gradient(circle, rgb(15 63 103) 0%, rgb(1 21 38) 100%);"
-);
+const isUp = computed(() => Number(props.coinData.chgRate) > 0);
 </script>
