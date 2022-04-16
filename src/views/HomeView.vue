@@ -87,17 +87,6 @@ const rows = ref<RowItem[]>([
   },
 ]);
 
-const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
-const param = JSON.stringify({
-  type: "ticker",
-  symbols: ["BTC_KRW", "ETH_KRW"],
-  tickTypes: ["24H"],
-});
-
-const onOpen = () => {
-  socket.value.send(param);
-};
-
 const setRow = (idx: number, name: string, data: TickerContent) => {
   rows.value[idx] = {
     name: name,
@@ -107,6 +96,13 @@ const setRow = (idx: number, name: string, data: TickerContent) => {
     up: Number(data.chgAmt),
     symbol: data.symbol,
   };
+};
+
+const moveDetailPage = (row: RowItem) => {
+  router.push({
+    name: "CoinInfo",
+    params: { symbol: row.symbol, name: row.name },
+  });
 };
 
 const onMessage = (event: MessageEvent) => {
@@ -121,11 +117,15 @@ const onMessage = (event: MessageEvent) => {
   }
 };
 
-const moveDetailPage = (row: RowItem) => {
-  router.push({
-    name: "CoinInfo",
-    params: { coinName: row.symbol },
-  });
+const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
+const param = JSON.stringify({
+  type: "ticker",
+  symbols: ["BTC_KRW", "ETH_KRW"],
+  tickTypes: ["24H"],
+});
+
+const onOpen = () => {
+  socket.value.send(param);
 };
 
 onMounted(() => {

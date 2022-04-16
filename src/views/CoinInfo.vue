@@ -72,15 +72,15 @@ const bidList = ref<{ price: string; quantity: string }[]>([]);
 const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
 const transaction = JSON.stringify({
   type: "transaction",
-  symbols: [route.params.coinName],
+  symbols: [route.params.symbol],
 });
 const orderbook = JSON.stringify({
   type: "orderbookdepth",
-  symbols: [route.params.coinName],
+  symbols: [route.params.symbol],
 });
 const ticker = JSON.stringify({
   type: "ticker",
-  symbols: [route.params.coinName],
+  symbols: [route.params.symbol],
   tickTypes: ["30M"],
 });
 

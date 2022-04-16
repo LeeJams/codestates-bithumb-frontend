@@ -1,6 +1,6 @@
 <template>
   <header>
-    <h4>비트코인 {{ route.params.coinName }}</h4>
+    <h5>{{ route.params.name }}</h5>
     <div class="coin_header" :class="isUp ? 'redColor' : 'blueColor'">
       <p>
         <b>시</b> <span>{{ numberFormat(coinData?.openPrice) }}</span>
@@ -25,17 +25,21 @@
 </template>
 
 <script setup lang="ts">
-import type { CoinContent } from "@/types/dataType";
+import type { TickerContent } from "@/types/dataType";
 import { numberFormat } from "@/utils/common";
 import { computed, type PropType } from "vue";
 import { useRoute } from "vue-router";
 
 const props = defineProps({
   coinData: {
-    type: Object as PropType<CoinContent>,
+    type: Object as PropType<TickerContent>,
     default: () => ({}),
   },
 });
+
 const route = useRoute();
+const imgPath = computed(() =>
+  require(`@/assets/images/${route.params.name}.png`)
+);
 const isUp = computed(() => Number(props.coinData.chgRate) > 0);
 </script>

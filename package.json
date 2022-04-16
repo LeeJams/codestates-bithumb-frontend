@@ -19,12 +19,11 @@
     "quasar": "^2.6.2",
     "vue": "^3.2.31",
     "vue-chart-3": "^3.1.8",
-    "vue-router": "^4.0.12"
+    "vue-router": "^4.0.14"
   },
   "devDependencies": {
     "@quasar/vite-plugin": "^1.0.7",
     "@rushstack/eslint-patch": "^1.1.0",
-    "@types/node": "^16.11.25",
     "@vitejs/plugin-vue": "^2.2.2",
     "@vue/eslint-config-prettier": "^7.0.0",
     "@vue/eslint-config-typescript": "^10.0.0",
