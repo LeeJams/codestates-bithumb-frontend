@@ -66,6 +66,8 @@ const route = useRoute();
 const transactionData = ref<TransactionContents[]>([]);
 const orderbookData = ref<OrderbookContents[]>([]);
 const coinData = ref<CoinContent>();
+const askList = ref<{ price: string; quantity: string }[]>([]);
+const bidList = ref<{ price: string; quantity: string }[]>([]);
 
 const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
 const transaction = JSON.stringify({
@@ -90,14 +92,21 @@ const onOpen = () => {
 
 const onMessage = (event: MessageEvent) => {
   const data = JSON.parse(event.data);
-  // console.log(data);
   if (data?.type === "transaction") {
     transactionData.value = [
       data.content.list[0],
       ...transactionData.value.slice(0, 19),
     ];
   } else if (data?.type === "orderbookdepth") {
-    orderbookData.value = data.content.list;
+    const res = data.content.list as OrderbookContents[];
+    for (let i = 0; i < res.length; i++) {
+      const { orderType, price, quantity } = res[i];
+      if (orderType === "ask") {
+        askList.value.push({ price, quantity });
+      } else if (orderType === "bid") {
+        bidList.value.push({ price, quantity });
+      }
+    }
   } else if (data?.type === "ticker") {
     coinData.value = data.content;
   }

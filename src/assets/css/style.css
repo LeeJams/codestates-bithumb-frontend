@@ -1,5 +1,5 @@
 body {
-  background-color: #292a2d;
+  background-color: rgba(24,24,27);
   color: rgb(255, 255, 255);
 }
 .logo {
@@ -8,6 +8,7 @@ body {
   background-image: url(https://www.bithumb.com/resources/img/sprite/sp_main_new.png?v=bithumb.2.0.5);
   background-repeat: no-repeat;
   margin: 50px auto;
+  cursor: pointer;
 }
 .container {
   width: 80%;
@@ -29,12 +30,6 @@ body {
 }
 .blueColor span {
   color: #4386f9;
-}
-.bgRed {
-  background: radial-gradient(circle, rgb(183 20 20) 0%, rgb(38 1 1) 100%);
-}
-.bgBlue {
-  background: radial-gradient(circle, rgb(15 63 103) 0%, rgb(1 21 38) 100%);
 }
 .coin_header {
   display: flex;

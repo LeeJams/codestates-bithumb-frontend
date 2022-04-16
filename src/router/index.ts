@@ -10,7 +10,7 @@ const router = createRouter({
       component: HomeView,
     },
     {
-      path: "/:coinName",
+      path: "/detail/:coinName",
       name: "CoinInfo",
       component: import("@/views/CoinInfo.vue"),
     },

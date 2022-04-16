@@ -1,90 +1,131 @@
 <template>
   <div class="container">
-    <div class="logo"></div>
-    <div class="card">
-      <CardView :coinData="btcCoinData" title="BitCoin - 비트코인"></CardView>
-      <CardView :coinData="ethCoinData" title="Ethereum - 이더리움"></CardView>
+    <div class="q-pa-md">
+      <q-table :rows="rows" :columns="columns" row-key="name" dark hide-bottom>
+        <template v-slot:body="props">
+          <q-tr
+            :props="props"
+            style="cursor: pointer"
+            @click="moveDetailPage(props.row)"
+          >
+            <q-td key="name" :props="props">
+              <img
+                :src="`src/assets/images/${props.row.name}.png`"
+                alt=""
+                style="width: 1rem; height: 1rem; margin-right: 2px"
+              />
+              {{ props.row.name }}
+            </q-td>
+            <q-td key="openPrice" :props="props">
+              {{ props.row.openPrice }}
+            </q-td>
+            <q-td
+              key="chgRate"
+              :props="props"
+              :class="props.row.up > 0 ? 'redColor' : 'blueColor'"
+            >
+              <span>{{ props.row.chgRate }}</span>
+            </q-td>
+            <q-td key="volume" :props="props">
+              {{ props.row.volume }}
+            </q-td>
+          </q-tr>
+        </template>
+      </q-table>
     </div>
   </div>
 </template>
 <script setup lang="ts">
-import type { CoinContent, CoinTickerData } from "@/types/dataType";
+import type { TickerContent, CoinTickerData, RowItem } from "@/types/dataType";
 import { onBeforeUnmount, onMounted, ref } from "vue";
-import CardView from "@/components/CardView.vue";
+import { numberFormat } from "@/utils/common";
+import { useRouter } from "vue-router";
+const router = useRouter();
+const columns = [
+  {
+    name: "name",
+    align: "center",
+    label: "이름",
+    field: "name",
+  },
+  {
+    name: "openPrice",
+    align: "right",
+    label: "현재가",
+    field: "openPrice",
+  },
+  {
+    name: "chgRate",
+    align: "right",
+    label: "전일대비",
+    field: "chgRate",
+  },
+  {
+    name: "volume",
+    align: "right",
+    label: "거래금액(24H)",
+    field: "volume",
+  },
+];
 
-const btcCoinData = ref<CoinContent>();
-const ethCoinData = ref<CoinContent>();
-const btcTime = ref(true);
-const ethTime = ref(true);
+const rows = ref<RowItem[]>([
+  {
+    name: "비트코인_(BTC)",
+    openPrice: "",
+    chgRate: "",
+    volume: "",
+    up: 0,
+    symbol: "BTC_KRW",
+  },
+  {
+    name: "이더리움_(ETH)",
+    openPrice: "",
+    chgRate: "",
+    volume: "",
+    up: 0,
+    symbol: "ETH_KRW",
+  },
+]);
 
 const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
 const param = JSON.stringify({
   type: "ticker",
   symbols: ["BTC_KRW", "ETH_KRW"],
-  tickTypes: ["30M"],
+  tickTypes: ["24H"],
 });
-
-const btcChartData = ref<{ data: { x: string; y: number[] }[] }[]>([
-  { data: [] },
-]);
-const ethChartData = ref<{ data: { x: string; y: number[] }[] }[]>([
-  { data: [] },
-]);
 
 const onOpen = () => {
   socket.value.send(param);
 };
 
+const setRow = (idx: number, name: string, data: TickerContent) => {
+  rows.value[idx] = {
+    name: name,
+    openPrice: `${numberFormat(data.openPrice)}원`,
+    chgRate: `${numberFormat(data.chgAmt)} (${data.chgRate})원`,
+    volume: `${numberFormat(data.volume)}원`,
+    up: Number(data.chgAmt),
+    symbol: data.symbol,
+  };
+};
+
 const onMessage = (event: MessageEvent) => {
   const data = JSON.parse(event.data) as CoinTickerData;
-  console.log(data);
   if (data?.content) {
     if (data?.content.symbol === "BTC_KRW") {
-      btcCoinData.value = data.content;
-
-      if (btcTime.value) {
-        btcTime.value = false;
-        btcChartData.value[0].data.push({
-          x: data.content.time,
-          y: [
-            Number(data.content.openPrice),
-            Number(data.content.highPrice),
-            Number(data.content.lowPrice),
-            Number(data.content.closePrice),
-          ],
-        });
-        setTimeout(() => {
-          btcTime.value = true;
-        }, 2000);
-      }
-
-      if (btcChartData.value[0].data.length > 600) {
-        btcChartData.value = btcChartData.value.splice(50);
-      }
-    } else if (data?.content.symbol === "ETH_KRW") {
-      ethCoinData.value = data.content;
-
-      if (ethTime.value) {
-        ethTime.value = false;
-        ethChartData.value[0].data.push({
-          x: data.content.time,
-          y: [
-            Number(data.content.openPrice),
-            Number(data.content.highPrice),
-            Number(data.content.lowPrice),
-            Number(data.content.closePrice),
-          ],
-        });
-        setTimeout(() => {
-          ethTime.value = true;
-        }, 2000);
-      }
-
-      if (ethChartData.value[0].data.length > 600) {
-        ethChartData.value = ethChartData.value.splice(50);
-      }
+      setRow(0, "비트코인_(BTC)", data.content);
+    }
+    if (data?.content.symbol === "ETH_KRW") {
+      setRow(1, "이더리움_(ETH)", data.content);
     }
   }
+};
+
+const moveDetailPage = (row: RowItem) => {
+  router.push({
+    name: "CoinInfo",
+    params: { coinName: row.symbol },
+  });
 };
 
 onMounted(() => {

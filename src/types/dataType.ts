@@ -1,8 +1,16 @@
 export interface CoinTickerData {
-  content: CoinContent;
+  content: TickerContent;
   type: string;
 }
-export interface CoinContent {
+interface RowItem {
+  name: string;
+  openPrice: string;
+  chgRate: string;
+  volume: string;
+  up: number;
+  symbol: string;
+}
+export interface TickerContent {
   buyVolume: string; // 매수누적거래량
   chgAmt: string; // 변동금액
   chgRate: string; // 변동률
