@@ -1,75 +1,55 @@
 <template>
-  <section style="width: 1000px">
+  <section class="row justify-center">
     <canvas id="myChart" width="1000" height="250"></canvas>
   </section>
 </template>
 <script setup lang="ts">
-import { nextTick, ref, onMounted, type PropType, watch } from "vue";
+import { ref, onMounted, type PropType } from "vue";
 import Vue3ChartJs from "@j-t-mcc/vue3-chartjs";
 import {
   CandlestickController,
   CandlestickElement,
 } from "chartjs-chart-financial";
 import "chartjs-adapter-luxon";
-import type { CoinContent, ChartData } from "@/types/dataType";
+import type {
+  TickerContent,
+  ChartData,
+  CandleStickChartData,
+} from "@/types/dataType";
 import { Chart } from "chart.js";
+import http from "@/utils/http";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const props = defineProps({
   coinData: {
-    type: Object as PropType<CoinContent>,
+    type: Object as PropType<TickerContent>,
   },
 });
 
-const chartData = ref<ChartData[]>([
-  {
-    x: 1491004800000,
-    o: 50169000,
-    h: 50171000,
-    l: 49981000,
-    c: 50035000,
-  },
-  {
-    x: 1491177600000,
-    o: 50152000,
-    h: 50171000,
-    l: 49981000,
-    c: 50040000,
-  },
-  {
-    x: 1491264000000,
-    o: 50152000,
-    h: 50171000,
-    l: 49981000,
-    c: 50040000,
-  },
-  {
-    x: 1491350400000,
-    o: 50156000,
-    h: 50171000,
-    l: 49981000,
-    c: 50040000,
-  },
-  {
-    x: 1491436800000,
-    o: 50156000,
-    h: 50171000,
-    l: 49981000,
-    c: 50040000,
-  },
-  {
-    x: 1491523200000,
-    o: 50152000,
-    h: 50171000,
-    l: 49981000,
-    c: 50040000,
-  },
-]);
+const chartData = ref<ChartData[]>([]);
+
+const setChartData = async () => {
+  const result: CandleStickChartData = await http.get(
+    `/candlestick/${route.params.symbol}/10m`
+  );
+  console.log(typeof result.data);
+  chartData.value = result.data.map((n) => ({
+    x: n[0],
+    o: n[1],
+    h: n[2],
+    l: n[3],
+    c: n[4],
+  }));
+  dreaChart();
+};
 
 onMounted(() => {
   Chart.register(CandlestickController, CandlestickElement);
+  setChartData();
 });
 
-nextTick(() => {
+const dreaChart = () => {
   const canvas = document.getElementById("myChart") as HTMLCanvasElement;
   const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
   const myChart = new Chart(ctx, {
@@ -77,7 +57,7 @@ nextTick(() => {
     data: {
       datasets: [
         {
-          label: "CHRT - Chart.js Corporation",
+          borderColor: "#3a9339",
           data: chartData.value,
         },
       ],
@@ -87,8 +67,21 @@ nextTick(() => {
         legend: {
           display: false,
         },
+        tooltip: {
+          cornerRadius: 0,
+          caretSize: 0,
+          padding: 10,
+          backgroundColor: "black",
+          borderColor: "gray",
+          borderWidth: 2,
+          titleMarginBottom: 4,
+          titleFont: {
+            weight: "bold",
+            size: 20,
+          },
+        },
       },
     },
   });
-});
+};
 </script>

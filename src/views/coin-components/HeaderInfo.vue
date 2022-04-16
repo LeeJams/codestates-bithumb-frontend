@@ -1,23 +1,29 @@
 <template>
   <header>
     <h5>{{ route.params.name }}</h5>
-    <div class="coin_header" :class="isUp ? 'redColor' : 'blueColor'">
+    <div class="row justify-evenly" :class="isUp ? 'redColor' : 'blueColor'">
       <p>
-        <b>시</b> <span>{{ numberFormat(coinData?.openPrice) }}</span>
+        <b>시</b> <span>{{ numberFormat(coinData?.openPrice) }}</span
+        >원
       </p>
       <p>
-        <b>고</b> <span>{{ numberFormat(coinData?.highPrice) }}</span>
+        <b>고</b> <span>{{ numberFormat(coinData?.highPrice) }}</span
+        >원
       </p>
       <p>
-        <b>저</b> <span>{{ numberFormat(coinData?.lowPrice) }}</span>
+        <b>저</b> <span>{{ numberFormat(coinData?.lowPrice) }}</span
+        >원
       </p>
       <p>
-        <b>종</b> <span>{{ numberFormat(coinData?.closePrice) }}</span>
+        <b>종</b> <span>{{ numberFormat(coinData?.closePrice) }}</span
+        >원
       </p>
       <p>
         <b>전일대비 </b>
         <span
-          >{{ coinData?.chgRate }}% ({{ numberFormat(coinData?.chgAmt) }})</span
+          >{{ numberFormat(coinData?.chgAmt) }}원 ({{
+            coinData?.chgRate
+          }}%)</span
         >
       </p>
     </div>
@@ -38,8 +44,5 @@ const props = defineProps({
 });
 
 const route = useRoute();
-const imgPath = computed(() =>
-  require(`@/assets/images/${route.params.name}.png`)
-);
 const isUp = computed(() => Number(props.coinData.chgRate) > 0);
 </script>

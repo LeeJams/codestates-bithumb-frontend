@@ -31,10 +31,10 @@ export interface TickerContent {
 
 export interface ChartData {
   x: number;
-  o: number;
-  h: number;
-  l: number;
-  c: number;
+  o: string;
+  h: string;
+  l: string;
+  c: string;
 }
 export interface Transaction {
   content: {
@@ -64,4 +64,8 @@ export interface OrderbookContents {
   quantity: string; // 잔량
   symbol: string; // 체결가격
   total: string; // 건수
+}
+export interface CandleStickChartData {
+  data: [number, string, string, string, string, string][];
+  status: string;
 }

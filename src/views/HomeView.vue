@@ -91,7 +91,7 @@ const setRow = (idx: number, name: string, data: TickerContent) => {
   rows.value[idx] = {
     name: name,
     openPrice: `${numberFormat(data.openPrice)}원`,
-    chgRate: `${numberFormat(data.chgAmt)} (${data.chgRate})원`,
+    chgRate: `${numberFormat(data.chgAmt)}원 (${data.chgRate}%)`,
     volume: `${numberFormat(data.volume)}원`,
     up: Number(data.chgAmt),
     symbol: data.symbol,
