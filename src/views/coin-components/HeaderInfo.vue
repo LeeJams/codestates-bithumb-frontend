@@ -1,6 +1,8 @@
 <template>
   <header>
-    <h5>{{ route.params.name }}</h5>
+    <h5>
+      {{ COIN_NAME[route.params.symbol] }}
+    </h5>
     <div class="row justify-evenly" :class="isUp ? 'redColor' : 'blueColor'">
       <p>
         <b>시</b> <span>{{ numberFormat(coinData?.openPrice) }}</span
@@ -32,7 +34,7 @@
 
 <script setup lang="ts">
 import type { TickerContent } from "@/types/dataType";
-import { numberFormat } from "@/utils/common";
+import { numberFormat, COIN_NAME } from "@/utils/common";
 import { computed, type PropType } from "vue";
 import { useRoute } from "vue-router";
 

@@ -19,6 +19,7 @@ import type {
 import { Chart } from "chart.js";
 import http from "@/utils/http";
 import { useRoute } from "vue-router";
+import zoomPlugin from "chartjs-plugin-zoom";
 
 const route = useRoute();
 const props = defineProps({
@@ -31,7 +32,7 @@ const chartData = ref<ChartData[]>([]);
 
 const setChartData = async () => {
   const result: CandleStickChartData = await http.get(
-    `/candlestick/${route.params.symbol}/10m`
+    `/candlestick/${route.params.symbol}_KRW/10m`
   );
   chartData.value = result.data.map((n) => ({
     x: n[0],
@@ -44,7 +45,7 @@ const setChartData = async () => {
 };
 
 onMounted(() => {
-  Chart.register(CandlestickController, CandlestickElement);
+  Chart.register(CandlestickController, CandlestickElement, zoomPlugin);
   setChartData();
 });
 
@@ -62,6 +63,11 @@ const dreaChart = () => {
       ],
     },
     options: {
+      scales: {
+        y2: {
+          position: "right",
+        },
+      },
       plugins: {
         legend: {
           display: false,
@@ -77,6 +83,17 @@ const dreaChart = () => {
           titleFont: {
             weight: "bold",
             size: 20,
+          },
+        },
+        zoom: {
+          zoom: {
+            wheel: {
+              enabled: true,
+            },
+            pinch: {
+              enabled: true,
+            },
+            mode: "x",
           },
         },
       },

@@ -2,13 +2,13 @@ export interface CoinTickerData {
   content: TickerContent;
   type: string;
 }
-interface RowItem {
+export interface RowItem {
   name: string;
+  engName: string;
   openPrice: string;
   chgRate: string;
   volume: string;
   up: number;
-  symbol: string;
 }
 export interface TickerContent {
   buyVolume: string; // 매수누적거래량

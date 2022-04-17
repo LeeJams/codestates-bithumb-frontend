@@ -7,8 +7,10 @@
         row-key="name"
         dark
         hide-bottom
-        class="q-pa-lg"
+        class="q-pa-lg col-5 my-sticky-header-table"
         :filter="filter"
+        :pagination="pagination"
+        style="height: 100%"
       >
         <template v-slot:top-right>
           <q-input
@@ -31,11 +33,13 @@
           >
             <q-td key="name" :props="props">
               <img
-                :src="`src/assets/images/${props.row.name}.png`"
+                :src="`src/assets/images/coin-icon/${props.row.engName}.png`"
                 alt=""
                 style="width: 1rem; height: 1rem; margin-right: 2px"
               />
-              {{ props.row.name }}
+              {{ props.row.name }}<br /><span class="coinEngName"
+                >{{ props.row.engName }}/KRW</span
+              >
             </q-td>
             <q-td key="openPrice" :props="props">
               {{ props.row.openPrice }}
@@ -57,117 +61,76 @@
   </div>
 </template>
 <script setup lang="ts">
-import type { TickerContent, CoinTickerData, RowItem } from "@/types/dataType";
-import { onBeforeUnmount, onMounted, ref } from "vue";
-import { numberFormat } from "@/utils/common";
+import type { RowItem } from "@/types/dataType";
+import { onMounted, ref } from "vue";
+import { numberFormat, COIN_NAME } from "@/utils/common";
 import { useRouter } from "vue-router";
 import http from "@/utils/http";
 const router = useRouter();
 const filter = ref("");
+const pagination = ref({ rowsPerPage: 0 });
 const columns = [
   {
     name: "name",
-    align: "center",
+    align: "left",
     label: "이름",
     field: "name",
+    sortable: true,
   },
   {
     name: "openPrice",
     align: "right",
     label: "현재가",
     field: "openPrice",
+    sortable: true,
   },
   {
     name: "chgRate",
     align: "right",
     label: "전일대비",
     field: "chgRate",
+    sortable: true,
   },
   {
     name: "volume",
     align: "right",
     label: "거래금액(24H)",
     field: "volume",
+    sortable: true,
   },
 ];
 
-const rows = ref<RowItem[]>([
-  {
-    name: "비트코인_(BTC)",
-    openPrice: "",
-    chgRate: "",
-    volume: "",
-    up: 0,
-    symbol: "BTC_KRW",
-  },
-  {
-    name: "이더리움_(ETH)",
-    openPrice: "",
-    chgRate: "",
-    volume: "",
-    up: 0,
-    symbol: "ETH_KRW",
-  },
-]);
-
-const setRow = (idx: number, name: string, data: TickerContent) => {
-  rows.value[idx] = {
-    name: name,
-    openPrice: `${numberFormat(data.openPrice)}원`,
-    chgRate: `${numberFormat(data.chgAmt)}원 (${data.chgRate}%)`,
-    volume: `${numberFormat(data.volume)}원`,
-    up: Number(data.chgAmt),
-    symbol: data.symbol,
-  };
-};
+const rows = ref<RowItem[]>([]);
 
 const moveDetailPage = (row: RowItem) => {
   router.push({
     name: "CoinInfo",
-    params: { symbol: row.symbol, name: row.name },
+    params: { symbol: row.engName },
   });
-};
-
-const onMessage = (event: MessageEvent) => {
-  const data = JSON.parse(event.data) as CoinTickerData;
-  if (data?.content) {
-    if (data?.content.symbol === "BTC_KRW") {
-      setRow(0, "비트코인_(BTC)", data.content);
-    }
-    if (data?.content.symbol === "ETH_KRW") {
-      setRow(1, "이더리움_(ETH)", data.content);
-    }
-  }
-};
-
-const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
-const param = JSON.stringify({
-  type: "ticker",
-  symbols: ["BTC_KRW", "ETH_KRW"],
-  tickTypes: ["24H"],
-});
-
-const onOpen = () => {
-  socket.value.send(param);
 };
 
 const getAllCoinData = async () => {
   const result = await http.get("/ticker/ALL_KRW");
-  console.log(result);
+  const keys = Object.keys(result.data);
+  for (let i = 0; i < keys.length; i++) {
+    if (keys[i] !== "date") {
+      console.log(keys[i]);
+      const data = result.data[keys[i]];
+      rows.value[i] = {
+        name: COIN_NAME[keys[i]],
+        engName: keys[i],
+        openPrice: `${numberFormat(data.opening_price)}원`,
+        chgRate: `${numberFormat(data.fluctate_24H)}원 (${
+          data.fluctate_rate_24H
+        }%)`,
+        volume: `${numberFormat(data.acc_trade_value_24H)}원`,
+        up: Number(data.fluctate_rate_24H),
+      };
+    }
+  }
 };
 
 onMounted(() => {
-  socket.value.onopen = function () {
-    onOpen();
-  };
-
-  socket.value.onmessage = function (event: MessageEvent) {
-    onMessage(event);
-  };
-
   getAllCoinData();
-});
-onBeforeUnmount(() => {
-  socket.value.close();
 });
 </script>

@@ -53,15 +53,15 @@ const bidList = ref<{ price: string; quantity: string }[]>([]);
 const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
 const transaction = JSON.stringify({
   type: "transaction",
-  symbols: [route.params.symbol],
+  symbols: [`${route.params.symbol}_KRW`],
 });
 const orderbook = JSON.stringify({
   type: "orderbookdepth",
-  symbols: [route.params.symbol],
+  symbols: [`${route.params.symbol}_KRW`],
 });
 const ticker = JSON.stringify({
   type: "ticker",
-  symbols: [route.params.symbol],
+  symbols: [`${route.params.symbol}_KRW`],
   tickTypes: ["30M"],
 });
 
@@ -103,7 +103,7 @@ const onMessage = (event: MessageEvent) => {
 const initTransactionData = async () => {
   try {
     const result: RestTransactionData = await http.get(
-      `/transaction_history/${route.params.symbol}`
+      `/transaction_history/${route.params.symbol}_KRW`
     );
     transactionData.value = result.data.map((n) => ({
       time: n.transaction_date.substring(10, 19),
@@ -128,6 +128,6 @@ onMounted(() => {
   initTransactionData();
 });
 onBeforeUnmount(() => {
-  socket.value.onclose;
+  socket.value.close();
 });
 </script>

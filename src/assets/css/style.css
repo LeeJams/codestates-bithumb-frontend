@@ -1,5 +1,5 @@
 body {
-  background-color: rgba(24,24,27);
+  background-color: rgba(24, 24, 27);
   color: rgb(255, 255, 255);
 }
 .logo {
@@ -30,6 +30,11 @@ body {
   overflow: auto;
   height: 90%;
 }
-.container section .item_box .item table{
+.container section .item_box .item table {
   width: 100%;
+}
+.coinEngName {
+  font-size: 12px;
+  margin-left: 22px;
+  color: grey;
 }
