@@ -33,7 +33,6 @@ const setChartData = async () => {
   const result: CandleStickChartData = await http.get(
     `/candlestick/${route.params.symbol}/10m`
   );
-  console.log(typeof result.data);
   chartData.value = result.data.map((n) => ({
     x: n[0],
     o: n[1],
@@ -57,7 +56,7 @@ const dreaChart = () => {
     data: {
       datasets: [
         {
-          borderColor: "#3a9339",
+          borderColor: "#319b35",
           data: chartData.value,
         },
       ],

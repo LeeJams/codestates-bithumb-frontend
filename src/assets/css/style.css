@@ -14,17 +14,6 @@ body {
   width: 80%;
   margin: 0 auto;
 }
-.card {
-  display: flex;
-}
-.chart {
-  display: flex;
-  justify-content: space-around;
-}
-.my-card {
-  margin: 50px 10px;
-  width: 47%;
-}
 .redColor span {
   color: #f75467;
 }
@@ -43,14 +32,4 @@ body {
 }
 .container section .item_box .item table{
   width: 100%;
-}
-@media (max-width: 700px) {
-  .card {
-    display: block;
-    width: 100%;
-  }
-  .my-card {
-    margin: 50px 10px;
-    width: 100%;
-  }
 }

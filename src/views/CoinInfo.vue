@@ -3,34 +3,7 @@
     <HeaderInfo :coinData="coinData" />
     <ChartView :coinData="coinData" />
     <section class="row justify-around q-mt-xl">
-      <q-table
-        class="q-pa-lg col-5"
-        title="체결내역"
-        :rows="transactionData"
-        :columns="transactionColumns"
-        row-key="time"
-        dark
-        hide-bottom
-        style="height: 400px"
-      >
-        <template v-slot:body="props">
-          <q-tr :props="props">
-            <q-td key="time" :props="props">
-              {{ props.row.time }}
-            </q-td>
-            <q-td key="price" :props="props">
-              {{ props.row.price }}
-            </q-td>
-            <q-td
-              key="qty"
-              :props="props"
-              :class="props.row.qty === 'up' ? 'redColor' : 'blueColor'"
-            >
-              <span>{{ props.row.qty }}</span>
-            </q-td>
-          </q-tr>
-        </template>
-      </q-table>
+      <TransactionDataTable :transactionData="transactionData" />
       <div class="item_box">
         <p>모아보기</p>
         <div class="item">
@@ -58,12 +31,15 @@ import type {
   OrderbookContents,
   TickerContent,
   ChartData,
+  RestTransactionData,
 } from "@/types/dataType";
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import ChartView from "@/components/ChartView.vue";
 import { numberFormat } from "@/utils/common";
 import HeaderInfo from "./coin-components/HeaderInfo.vue";
+import http from "@/utils/http";
+import TransactionDataTable from "./coin-components/TransactionDataTable.vue";
 
 const route = useRoute();
 const transactionData = ref<
@@ -73,27 +49,6 @@ const orderbookData = ref<OrderbookContents[]>([]);
 const coinData = ref<TickerContent>();
 const askList = ref<{ price: string; quantity: string }[]>([]);
 const bidList = ref<{ price: string; quantity: string }[]>([]);
-
-const transactionColumns = [
-  {
-    name: "time",
-    align: "center",
-    label: "시간",
-    field: "time",
-  },
-  {
-    name: "price",
-    align: "right",
-    label: "현재가",
-    field: "price",
-  },
-  {
-    name: "qty",
-    align: "right",
-    label: "수량",
-    field: "qty",
-  },
-];
 
 const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
 const transaction = JSON.stringify({
@@ -145,6 +100,22 @@ const onMessage = (event: MessageEvent) => {
   }
 };
 
+const initTransactionData = async () => {
+  try {
+    const result: RestTransactionData = await http.get(
+      `/transaction_history/${route.params.symbol}`
+    );
+    transactionData.value = result.data.map((n) => ({
+      time: n.transaction_date.substring(10, 19),
+      price: numberFormat(n.price),
+      qty: `${n.units_traded.substring(0, 6)}BTC`,
+      updn: n.type === "ask" ? "up" : "dn",
+    }));
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 onMounted(() => {
   socket.value.onopen = function () {
     onOpen();
@@ -153,6 +124,8 @@ onMounted(() => {
   socket.value.onmessage = function (event: MessageEvent) {
     onMessage(event);
   };
+
+  initTransactionData();
 });
 onBeforeUnmount(() => {
   socket.value.onclose;

@@ -69,3 +69,14 @@ export interface CandleStickChartData {
   data: [number, string, string, string, string, string][];
   status: string;
 }
+
+export interface RestTransactionData {
+  data: {
+    price: string;
+    total: string;
+    transaction_date: string;
+    type: string;
+    units_traded: string;
+  }[];
+  status: string;
+}

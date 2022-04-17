@@ -1,7 +1,28 @@
 <template>
   <div class="container">
     <div class="q-pa-md">
-      <q-table :rows="rows" :columns="columns" row-key="name" dark hide-bottom>
+      <q-table
+        :rows="rows"
+        :columns="columns"
+        row-key="name"
+        dark
+        hide-bottom
+        class="q-pa-lg"
+        :filter="filter"
+      >
+        <template v-slot:top-right>
+          <q-input
+            dense
+            debounce="300"
+            v-model="filter"
+            placeholder="코인 검색"
+            dark
+          >
+            <template v-slot:append>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </template>
         <template v-slot:body="props">
           <q-tr
             :props="props"
@@ -41,6 +62,7 @@ import { onBeforeUnmount, onMounted, ref } from "vue";
 import { numberFormat } from "@/utils/common";
 import { useRouter } from "vue-router";
 const router = useRouter();
+const filter = ref("");
 const columns = [
   {
     name: "name",
