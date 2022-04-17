@@ -61,6 +61,7 @@ import type { TickerContent, CoinTickerData, RowItem } from "@/types/dataType";
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { numberFormat } from "@/utils/common";
 import { useRouter } from "vue-router";
+import http from "@/utils/http";
 const router = useRouter();
 const filter = ref("");
 const columns = [
@@ -150,6 +151,11 @@ const onOpen = () => {
   socket.value.send(param);
 };
 
+const getAllCoinData = async () => {
+  const result = await http.get("/ticker/ALL_KRW");
+  console.log(result);
+};
+
 onMounted(() => {
   socket.value.onopen = function () {
     onOpen();
@@ -158,6 +164,8 @@ onMounted(() => {
   socket.value.onmessage = function (event: MessageEvent) {
     onMessage(event);
   };
+
+  getAllCoinData();
 });
 onBeforeUnmount(() => {
   socket.value.close();
