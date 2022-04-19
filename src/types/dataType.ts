@@ -2,7 +2,7 @@ export interface CoinTickerData {
   content: TickerContent;
   type: string;
 }
-export interface RowItem {
+export interface CoinTableRowItems {
   name: string;
   engName: string;
   openPrice: string;

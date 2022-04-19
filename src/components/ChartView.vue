@@ -25,6 +25,7 @@ const route = useRoute();
 const props = defineProps({
   coinData: {
     type: Object as PropType<TickerContent>,
+    required: true,
   },
 });
 
@@ -32,16 +33,16 @@ const chartData = ref<ChartData[]>([]);
 
 const setChartData = async () => {
   const result: CandleStickChartData = await http.get(
-    `/candlestick/${route.params.symbol}_KRW/10m`
+    `/candlestick/${route.params.symbol}_KRW/24h`
   );
-  chartData.value = result.data.map((n) => ({
+  chartData.value = result.data.slice(-300).map((n) => ({
     x: n[0],
     o: n[1],
-    h: n[2],
-    l: n[3],
-    c: n[4],
+    h: n[3],
+    l: n[4],
+    c: n[2],
   }));
-  dreaChart();
+  drewChart();
 };
 
 onMounted(() => {
@@ -49,7 +50,7 @@ onMounted(() => {
   setChartData();
 });
 
-const dreaChart = () => {
+const drewChart = () => {
   const canvas = document.getElementById("myChart") as HTMLCanvasElement;
   const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
   const myChart = new Chart(ctx, {
@@ -57,7 +58,7 @@ const dreaChart = () => {
     data: {
       datasets: [
         {
-          borderColor: "#319b35",
+          // borderColor: "#18181b",
           data: chartData.value,
         },
       ],
@@ -93,7 +94,7 @@ const dreaChart = () => {
             pinch: {
               enabled: true,
             },
-            mode: "x",
+            mode: "xy",
           },
         },
       },

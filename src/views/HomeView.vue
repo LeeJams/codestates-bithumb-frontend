@@ -1,8 +1,20 @@
 <template>
   <div class="container">
+    <div class="q-pa-md text-white">
+      <q-btn-toggle
+        v-model="toggleView"
+        push
+        glossy
+        toggle-color="teal"
+        :options="[
+          { label: '원화마켓', value: true },
+          { label: '즐겨찾기', value: false },
+        ]"
+      />
+    </div>
     <div class="q-pa-md">
       <q-table
-        :rows="rows"
+        :rows="toggleView ? allCoinData : favoriteCoins"
         :columns="columns"
         row-key="name"
         dark
@@ -83,13 +95,17 @@
   </div>
 </template>
 <script setup lang="ts">
-import type { RowItem, TickerContent } from "@/types/dataType";
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import type { CoinTableRowItems, TickerContent } from "@/types/dataType";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { numberFormat, COIN_NAME } from "@/utils/common";
 import { useRouter } from "vue-router";
 import http from "@/utils/http";
 const router = useRouter();
 const filter = ref("");
+const favoriteCoins = computed(() =>
+  allCoinData.value.filter((n) => selected.value.includes(n.engName))
+);
+const toggleView = ref(true);
 const pagination = ref({ rowsPerPage: 0 });
 const columns = [
   {
@@ -127,10 +143,10 @@ const columns = [
   },
 ];
 
-const rows = ref<RowItem[]>([]);
-const selected = ref([]);
+const allCoinData = ref<CoinTableRowItems[]>([]);
+const selected = ref<Array<string>>([]);
 
-const moveDetailPage = (row: RowItem) => {
+const moveDetailPage = (row: CoinTableRowItems) => {
   router.push({
     name: "CoinInfo",
     params: { symbol: row.engName },
@@ -145,7 +161,7 @@ const getAllCoinData = async (): Promise<Array<string>> => {
     if (keys[i] !== "date") {
       tickTypes.push(`${keys[i]}_KRW`);
       const data = result.data[keys[i]];
-      rows.value[i] = {
+      allCoinData.value[i] = {
         name: COIN_NAME[keys[i]] || "-",
         engName: keys[i],
         openPrice: numberFormat(data.opening_price),
@@ -167,15 +183,17 @@ const onMessage = (event: MessageEvent) => {
   if (data.type === "ticker") {
     const { symbol, chgAmt, value, chgRate, openPrice } =
       data.content as TickerContent;
-    const idx = rows.value.findIndex(
+    const idx = allCoinData.value.findIndex(
       (n) => n.engName === symbol.substring(0, 3)
     );
     if (idx !== -1) {
-      rows.value[idx].chgPrice = numberFormat(chgAmt);
-      rows.value[idx].chgRate = chgRate;
-      rows.value[idx].openPrice = numberFormat(openPrice);
-      rows.value[idx].volume = numberFormat(`${Math.round(parseInt(value))}`);
-      rows.value[idx].up = Number(data.content.chgRate);
+      allCoinData.value[idx].chgPrice = numberFormat(chgAmt);
+      allCoinData.value[idx].chgRate = chgRate;
+      allCoinData.value[idx].openPrice = numberFormat(openPrice);
+      allCoinData.value[idx].volume = numberFormat(
+        `${Math.round(parseInt(value))}`
+      );
+      allCoinData.value[idx].up = Number(data.content.chgRate);
     }
   }
 };

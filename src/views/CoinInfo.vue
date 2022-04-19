@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <HeaderInfo :coinData="coinData" />
+    <!-- <ApexChart /> -->
     <ChartView :coinData="coinData" />
     <section class="row justify-around q-mt-xl">
       <TransactionDataTable :transactionData="transactionData" />
@@ -38,6 +39,7 @@ import type {
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import ChartView from "@/components/ChartView.vue";
+// import ApexChart from "@/components/ApexChart.vue";
 import { numberFormat } from "@/utils/common";
 import HeaderInfo from "./coin-components/HeaderInfo.vue";
 import http from "@/utils/http";
