@@ -25,13 +25,26 @@
             </template>
           </q-input>
         </template>
+        <template v-slot:header="props">
+          <q-tr :props="props">
+            <q-th auto-width />
+            <q-th v-for="col in props.cols" :key="col.name" :props="props">
+              {{ col.label }}
+            </q-th>
+          </q-tr>
+        </template>
         <template v-slot:body="props">
-          <q-tr
-            :props="props"
-            style="cursor: pointer"
-            @click="moveDetailPage(props.row)"
-          >
-            <q-td key="name" :props="props">
+          <q-tr :props="props" style="cursor: pointer">
+            <q-td auto-width>
+              <q-checkbox
+                v-model="selected"
+                checked-icon="star"
+                unchecked-icon="star_border"
+                color="yellow"
+                :val="props.row.engName"
+              />
+            </q-td>
+            <q-td key="name" :props="props" @click="moveDetailPage(props.row)">
               <img
                 :src="`src/assets/images/coin-icon/${props.row.engName}.png`"
                 alt=""
@@ -41,17 +54,28 @@
                 >{{ props.row.engName }}/KRW</span
               >
             </q-td>
-            <q-td key="openPrice" :props="props">
+            <q-td
+              key="openPrice"
+              :props="props"
+              @click="moveDetailPage(props.row)"
+            >
               {{ props.row.openPrice }}원
             </q-td>
             <q-td
               key="chgRate"
               :props="props"
               :class="props.row.up > 0 ? 'redColor' : 'blueColor'"
+              @click="moveDetailPage(props.row)"
             >
               <span>{{ props.row.chgPrice }}원 ({{ props.row.chgRate }}%)</span>
             </q-td>
-            <q-td key="volume" :props="props"> {{ props.row.volume }}원 </q-td>
+            <q-td
+              key="volume"
+              :props="props"
+              @click="moveDetailPage(props.row)"
+            >
+              {{ props.row.volume }}원
+            </q-td>
           </q-tr>
         </template>
       </q-table>
@@ -104,6 +128,7 @@ const columns = [
 ];
 
 const rows = ref<RowItem[]>([]);
+const selected = ref([]);
 
 const moveDetailPage = (row: RowItem) => {
   router.push({
