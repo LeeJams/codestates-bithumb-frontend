@@ -54,6 +54,7 @@
                 unchecked-icon="star_border"
                 color="yellow"
                 :val="props.row.engName"
+                @update:model-value="setSession"
               />
             </q-td>
             <q-td key="name" :props="props" @click="moveDetailPage(props.row)">
@@ -96,7 +97,7 @@
 </template>
 <script setup lang="ts">
 import type { CoinTableRowItems, TickerContent } from "@/types/dataType";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watchEffect } from "vue";
 import { numberFormat, COIN_NAME } from "@/utils/common";
 import { useRouter } from "vue-router";
 import http from "@/utils/http";
@@ -145,6 +146,9 @@ const columns = [
 
 const allCoinData = ref<CoinTableRowItems[]>([]);
 const selected = ref<Array<string>>([]);
+const setSession = () => {
+  sessionStorage.setItem("favoriteCoins", selected.value.join(","));
+};
 
 const moveDetailPage = (row: CoinTableRowItems) => {
   router.push({
@@ -220,6 +224,8 @@ onMounted(async () => {
     tickTypes: ["24H"],
   });
   connectSocket(ticker);
+  const coins = sessionStorage.getItem("favoriteCoins");
+  selected.value = coins?.split(",") || [];
 });
 onBeforeUnmount(() => {
   socket.value.close();
