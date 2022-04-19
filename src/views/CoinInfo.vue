@@ -32,6 +32,8 @@ import type {
   TickerContent,
   ChartData,
   RestTransactionData,
+  RestTickerData,
+  CoinHeaderData,
 } from "@/types/dataType";
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -46,7 +48,7 @@ const transactionData = ref<
   { time: string; price: string; qty: string; updn: string }[]
 >([]);
 const orderbookData = ref<OrderbookContents[]>([]);
-const coinData = ref<TickerContent>();
+const coinData = ref<CoinHeaderData>();
 const askList = ref<{ price: string; quantity: string }[]>([]);
 const bidList = ref<{ price: string; quantity: string }[]>([]);
 
@@ -62,7 +64,7 @@ const orderbook = JSON.stringify({
 const ticker = JSON.stringify({
   type: "ticker",
   symbols: [`${route.params.symbol}_KRW`],
-  tickTypes: ["30M"],
+  tickTypes: ["24H"],
 });
 
 const onOpen = () => {
@@ -96,7 +98,16 @@ const onMessage = (event: MessageEvent) => {
       }
     }
   } else if (data?.type === "ticker") {
-    coinData.value = data.content;
+    const { lowPrice, highPrice, openPrice, closePrice, chgRate, chgAmt } =
+      data.content as TickerContent;
+    coinData.value = {
+      lowPrice,
+      highPrice,
+      openPrice,
+      closePrice,
+      chgRate,
+      chgAmt,
+    };
   }
 };
 
@@ -115,6 +126,23 @@ const initTransactionData = async () => {
     console.log(e);
   }
 };
+const initTickerData = async () => {
+  try {
+    const result: RestTickerData = await http.get(
+      `/ticker/${route.params.symbol}_KRW`
+    );
+    coinData.value = {
+      lowPrice: result.data.min_price,
+      openPrice: result.data.opening_price,
+      highPrice: result.data.max_price,
+      closePrice: result.data.closing_price,
+      chgRate: result.data.fluctate_rate_24H,
+      chgAmt: result.data.fluctate_24H,
+    };
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 onMounted(() => {
   socket.value.onopen = function () {
@@ -126,6 +154,7 @@ onMounted(() => {
   };
 
   initTransactionData();
+  initTickerData();
 });
 onBeforeUnmount(() => {
   socket.value.close();

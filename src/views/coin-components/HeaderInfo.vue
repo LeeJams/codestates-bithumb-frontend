@@ -22,25 +22,22 @@
       </p>
       <p>
         <b>전일대비 </b>
-        <span
-          >{{ numberFormat(coinData?.chgAmt) }}원 ({{
-            coinData?.chgRate
-          }}%)</span
-        >
+        <span>{{ numberFormat(coinData?.chgAmt) }}</span
+        >원 <span>({{ coinData?.chgRate }}%)</span>
       </p>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
-import type { TickerContent } from "@/types/dataType";
+import type { CoinHeaderData } from "@/types/dataType";
 import { numberFormat, COIN_NAME } from "@/utils/common";
 import { computed, type PropType } from "vue";
 import { useRoute } from "vue-router";
 
 const props = defineProps({
   coinData: {
-    type: Object as PropType<TickerContent>,
+    type: Object as PropType<CoinHeaderData>,
     default: () => ({}),
   },
 });

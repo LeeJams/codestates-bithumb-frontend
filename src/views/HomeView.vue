@@ -42,18 +42,16 @@
               >
             </q-td>
             <q-td key="openPrice" :props="props">
-              {{ props.row.openPrice }}
+              {{ props.row.openPrice }}원
             </q-td>
             <q-td
               key="chgRate"
               :props="props"
               :class="props.row.up > 0 ? 'redColor' : 'blueColor'"
             >
-              <span>{{ props.row.chgRate }}</span>
+              <span>{{ props.row.chgPrice }}원 ({{ props.row.chgRate }}%)</span>
             </q-td>
-            <q-td key="volume" :props="props">
-              {{ props.row.volume }}
-            </q-td>
+            <q-td key="volume" :props="props"> {{ props.row.volume }}원 </q-td>
           </q-tr>
         </template>
       </q-table>
@@ -62,7 +60,7 @@
 </template>
 <script setup lang="ts">
 import type { RowItem } from "@/types/dataType";
-import { onMounted, ref } from "vue";
+import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
 import { numberFormat, COIN_NAME } from "@/utils/common";
 import { useRouter } from "vue-router";
 import http from "@/utils/http";
@@ -83,6 +81,8 @@ const columns = [
     label: "현재가",
     field: "openPrice",
     sortable: true,
+    sort: (a: string, b: string) =>
+      parseInt(a.split(",").join(""), 10) - parseInt(b.split(",").join(""), 10),
   },
   {
     name: "chgRate",
@@ -90,6 +90,7 @@ const columns = [
     label: "전일대비",
     field: "chgRate",
     sortable: true,
+    sort: (a: string, b: string) => parseInt(a, 10) - parseInt(b, 10),
   },
   {
     name: "volume",
@@ -97,6 +98,8 @@ const columns = [
     label: "거래금액(24H)",
     field: "volume",
     sortable: true,
+    sort: (a: string, b: string) =>
+      parseInt(a.split(",").join(""), 10) - parseInt(b.split(",").join(""), 10),
   },
 ];
 
@@ -109,28 +112,68 @@ const moveDetailPage = (row: RowItem) => {
   });
 };
 
-const getAllCoinData = async () => {
+const getAllCoinData = async (): Promise<Array<string>> => {
   const result = await http.get("/ticker/ALL_KRW");
   const keys = Object.keys(result.data);
+  const tickTypes = [];
   for (let i = 0; i < keys.length; i++) {
     if (keys[i] !== "date") {
-      console.log(keys[i]);
+      tickTypes.push(`${keys[i]}_KRW`);
       const data = result.data[keys[i]];
       rows.value[i] = {
-        name: COIN_NAME[keys[i]],
+        name: COIN_NAME[keys[i]] || "-",
         engName: keys[i],
-        openPrice: `${numberFormat(data.opening_price)}원`,
-        chgRate: `${numberFormat(data.fluctate_24H)}원 (${
-          data.fluctate_rate_24H
-        }%)`,
-        volume: `${numberFormat(data.acc_trade_value_24H)}원`,
+        openPrice: numberFormat(data.opening_price),
+        chgRate: data.fluctate_rate_24H,
+        chgPrice: numberFormat(data.fluctate_24H),
+        volume: numberFormat(
+          `${Math.round(parseInt(data.acc_trade_value_24H))}`
+        ),
         up: Number(data.fluctate_rate_24H),
       };
     }
   }
+
+  return tickTypes;
 };
 
-onMounted(() => {
-  getAllCoinData();
+const onMessage = (event: MessageEvent) => {
+  const data = JSON.parse(event.data);
+  if (data.type === "ticker") {
+    const idx = rows.value.findIndex(
+      (n) => n.engName === data.content.symbol.substring(0, 3)
+    );
+    if (idx !== -1) {
+      rows.value[idx].chgPrice = numberFormat(data.content.chgAmt);
+      rows.value[idx].chgRate = data.content.chgRate;
+      rows.value[idx].openPrice = numberFormat(data.content.openPrice);
+      rows.value[idx].volume = numberFormat(data.content.value);
+      rows.value[idx].up = Number(data.content.chgRate);
+    }
+  }
+};
+
+const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
+
+const connectSocket = (ticker: string) => {
+  socket.value.onopen = function () {
+    socket.value.send(ticker);
+  };
+  socket.value.onmessage = function (event: MessageEvent) {
+    onMessage(event);
+  };
+};
+
+onMounted(async () => {
+  const types = await getAllCoinData();
+  const ticker = JSON.stringify({
+    type: "ticker",
+    symbols: types,
+    tickTypes: ["24H"],
+  });
+  connectSocket(ticker);
+});
+onBeforeUnmount(() => {
+  socket.value.close();
 });
 </script>

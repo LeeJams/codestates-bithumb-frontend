@@ -7,8 +7,18 @@ export interface RowItem {
   engName: string;
   openPrice: string;
   chgRate: string;
+  chgPrice: string;
   volume: string;
   up: number;
+}
+
+export interface CoinHeaderData {
+  lowPrice: string; // 저가
+  openPrice: string; // 시가
+  highPrice: string; // 고가
+  closePrice: string; // 종가
+  chgRate: string; // 변동률
+  chgAmt: string; // 변동금액
 }
 export interface TickerContent {
   buyVolume: string; // 매수누적거래량
@@ -78,5 +88,22 @@ export interface RestTransactionData {
     type: string;
     units_traded: string;
   }[];
+  status: string;
+}
+export interface RestTickerData {
+  data: {
+    opening_price: string;
+    closing_price: string;
+    min_price: string;
+    max_price: string;
+    units_traded: string;
+    acc_trade_value: string;
+    prev_closing_price: string;
+    units_traded_24H: string;
+    acc_trade_value_24H: string;
+    fluctate_24H: string;
+    fluctate_rate_24H: string;
+    date: string;
+  };
   status: string;
 }
