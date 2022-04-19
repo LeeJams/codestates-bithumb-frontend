@@ -59,8 +59,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import type { RowItem } from "@/types/dataType";
-import { nextTick, onBeforeUnmount, onMounted, ref } from "vue";
+import type { RowItem, TickerContent } from "@/types/dataType";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { numberFormat, COIN_NAME } from "@/utils/common";
 import { useRouter } from "vue-router";
 import http from "@/utils/http";
@@ -140,27 +140,32 @@ const getAllCoinData = async (): Promise<Array<string>> => {
 const onMessage = (event: MessageEvent) => {
   const data = JSON.parse(event.data);
   if (data.type === "ticker") {
+    const { symbol, chgAmt, value, chgRate, openPrice } =
+      data.content as TickerContent;
     const idx = rows.value.findIndex(
-      (n) => n.engName === data.content.symbol.substring(0, 3)
+      (n) => n.engName === symbol.substring(0, 3)
     );
     if (idx !== -1) {
-      rows.value[idx].chgPrice = numberFormat(data.content.chgAmt);
-      rows.value[idx].chgRate = data.content.chgRate;
-      rows.value[idx].openPrice = numberFormat(data.content.openPrice);
-      rows.value[idx].volume = numberFormat(data.content.value);
+      rows.value[idx].chgPrice = numberFormat(chgAmt);
+      rows.value[idx].chgRate = chgRate;
+      rows.value[idx].openPrice = numberFormat(openPrice);
+      rows.value[idx].volume = numberFormat(`${Math.round(parseInt(value))}`);
       rows.value[idx].up = Number(data.content.chgRate);
     }
   }
 };
 
 const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
-
 const connectSocket = (ticker: string) => {
+  socket.value = new WebSocket("wss://pubwss.bithumb.com/pub/ws");
   socket.value.onopen = function () {
     socket.value.send(ticker);
   };
   socket.value.onmessage = function (event: MessageEvent) {
     onMessage(event);
+  };
+  socket.value.onclose = function () {
+    socket.value.close();
   };
 };
 
