@@ -54,7 +54,7 @@
                 unchecked-icon="star_border"
                 color="yellow"
                 :val="props.row.engName"
-                @update:model-value="setSession"
+                @update:model-value="setCookie"
               />
             </q-td>
             <q-td key="name" :props="props" @click="moveDetailPage(props.row)">
@@ -101,6 +101,8 @@ import { computed, onBeforeUnmount, onMounted, ref, watchEffect } from "vue";
 import { numberFormat, COIN_NAME } from "@/utils/common";
 import { useRouter } from "vue-router";
 import http from "@/utils/http";
+import { useCookies } from "vue3-cookies";
+
 const router = useRouter();
 const filter = ref("");
 const favoriteCoins = computed(() =>
@@ -146,8 +148,9 @@ const columns = [
 
 const allCoinData = ref<CoinTableRowItems[]>([]);
 const selected = ref<Array<string>>([]);
-const setSession = () => {
-  sessionStorage.setItem("favoriteCoins", selected.value.join(","));
+const { cookies } = useCookies();
+const setCookie = () => {
+  cookies.set("favoriteCoins", selected.value.join(","));
 };
 
 const moveDetailPage = (row: CoinTableRowItems) => {
@@ -224,7 +227,7 @@ onMounted(async () => {
     tickTypes: ["24H"],
   });
   connectSocket(ticker);
-  const coins = sessionStorage.getItem("favoriteCoins");
+  const coins = cookies.get("favoriteCoins");
   selected.value = coins?.split(",") || [];
 });
 onBeforeUnmount(() => {
