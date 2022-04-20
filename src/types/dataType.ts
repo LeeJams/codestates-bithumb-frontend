@@ -107,3 +107,13 @@ export interface RestTickerData {
   };
   status: string;
 }
+export interface RestOrderbookData {
+  data: {
+    timestamp: string;
+    order_currency: string;
+    payment_currency: string;
+    bids: { quantity: string; price: string }[];
+    asks: { quantity: string; price: string }[];
+  }[];
+  status: string;
+}

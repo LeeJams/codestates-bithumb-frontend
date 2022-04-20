@@ -4,7 +4,7 @@
   </section>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, type PropType } from "vue";
+import { ref, onMounted } from "vue";
 import Vue3ChartJs from "@j-t-mcc/vue3-chartjs";
 import {
   CandlestickController,
@@ -20,14 +20,14 @@ import { Chart } from "chart.js";
 import http from "@/utils/http";
 import { useRoute } from "vue-router";
 import zoomPlugin from "chartjs-plugin-zoom";
+import type { PropType } from "vue-demi";
 
 const route = useRoute();
-const props = defineProps({
-  coinData: {
-    type: Object as PropType<TickerContent>,
-    required: true,
-  },
-});
+// const props = defineProps({
+//   coinData: {
+//     type: Object as PropType<TickerContent>,
+//   },
+// });
 
 const chartData = ref<ChartData[]>([]);
 

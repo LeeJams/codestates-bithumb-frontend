@@ -59,6 +59,7 @@
             </q-td>
             <q-td key="name" :props="props" @click="moveDetailPage(props.row)">
               <img
+                v-if="props.row.engName !== 'CON'"
                 :src="`src/assets/images/coin-icon/${props.row.engName}.png`"
                 alt=""
                 style="width: 1rem; height: 1rem; margin-right: 2px"

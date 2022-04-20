@@ -19,7 +19,7 @@ instance.interceptors.response.use(
   }
 );
 
-const baseUrl = "https://api.bithumb.com/public/";
+const baseUrl = "https://api.bithumb.com/public";
 const defaultHeaders = {
   "Content-Type": "application/json;charset=UTF-8",
   Accept: "*/*",

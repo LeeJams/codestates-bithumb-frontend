@@ -32,8 +32,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type PropType } from "vue";
-
+import { ref } from "vue";
+import type { PropType } from "vue-demi";
 const props = defineProps({
   transactionData: {
     type: Array as PropType<

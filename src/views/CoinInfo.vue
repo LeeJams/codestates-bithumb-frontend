@@ -2,26 +2,13 @@
   <div class="container">
     <HeaderInfo :coinData="coinData" />
     <!-- <ApexChart /> -->
-    <ChartView :coinData="coinData" />
+    <ChartView />
     <section class="row justify-around q-mt-xl">
       <TransactionDataTable :transactionData="transactionData" />
-      <div class="item_box">
-        <p>모아보기</p>
-        <div class="item">
-          <table>
-            <thead>
-              <th>가격(KRW)</th>
-              <th>수량(BTC)</th>
-            </thead>
-            <tbody>
-              <tr v-for="(data, idx) in orderbookData" :key="idx">
-                <td>{{ numberFormat(data.price) }}</td>
-                <td>{{ data.quantity }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <OrderbookDataTable
+        :askList="Object.entries(askList).reverse()"
+        :bidList="Object.entries(bidList).reverse()"
+      />
     </section>
   </div>
 </template>
@@ -31,7 +18,6 @@ import type {
   TransactionContents,
   OrderbookContents,
   TickerContent,
-  ChartData,
   RestTransactionData,
   RestTickerData,
   CoinHeaderData,
@@ -44,15 +30,15 @@ import { numberFormat } from "@/utils/common";
 import HeaderInfo from "./coin-components/HeaderInfo.vue";
 import http from "@/utils/http";
 import TransactionDataTable from "./coin-components/TransactionDataTable.vue";
+import OrderbookDataTable from "./coin-components/OrderbookDataTable.vue";
 
 const route = useRoute();
 const transactionData = ref<
   { time: string; price: string; qty: string; updn: string }[]
 >([]);
-const orderbookData = ref<OrderbookContents[]>([]);
 const coinData = ref<CoinHeaderData>();
-const askList = ref<{ price: string; quantity: string }[]>([]);
-const bidList = ref<{ price: string; quantity: string }[]>([]);
+const askList = ref<{ [key in string]: number }>({});
+const bidList = ref<{ [key in string]: number }>({});
 
 const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
 const transaction = JSON.stringify({
@@ -94,9 +80,17 @@ const onMessage = (event: MessageEvent) => {
     for (let i = 0; i < res.length; i++) {
       const { orderType, price, quantity } = res[i];
       if (orderType === "ask") {
-        // askList.value.push({ price, quantity });
+        askList.value[price] = parseFloat(quantity);
+        const forFilter = Object.entries(askList.value);
+        askList.value = Object.fromEntries(
+          forFilter.filter((n) => n[1] !== 0).slice(0, 10)
+        );
       } else if (orderType === "bid") {
-        // bidList.value.push({ price, quantity });
+        bidList.value[price] = parseFloat(quantity);
+        const forFilter = Object.entries(bidList.value);
+        bidList.value = Object.fromEntries(
+          forFilter.filter((n) => n[1] !== 0).slice(0, 10)
+        );
       }
     }
   } else if (data?.type === "ticker") {
@@ -145,6 +139,17 @@ const initTickerData = async () => {
     console.log(e);
   }
 };
+const initOrderbookData = async () => {
+  try {
+    // CORS 애러
+    // const result: RestOrderbookData = await http.get(
+    //   `/orderbook/${route.params.symbol}_KRW`
+    // );
+    // console.log(result);
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 onMounted(() => {
   socket.value.onopen = function () {
@@ -157,6 +162,7 @@ onMounted(() => {
 
   initTransactionData();
   initTickerData();
+  initOrderbookData();
 });
 onBeforeUnmount(() => {
   socket.value.close();
