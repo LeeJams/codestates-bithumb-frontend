@@ -20,6 +20,9 @@ body {
 .blueColor span {
   color: #4386f9;
 }
+.active {
+  border-bottom: 2px solid #008a7d
+}
 .container section .item_box {
   width: 45%;
   height: 500px;

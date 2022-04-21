@@ -10,6 +10,7 @@ export interface CoinTableRowItems {
   chgPrice: string;
   volume: string;
   up: number;
+  active: boolean;
 }
 
 export interface CoinHeaderData {

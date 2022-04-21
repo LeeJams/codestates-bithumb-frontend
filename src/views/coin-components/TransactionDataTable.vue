@@ -1,6 +1,6 @@
 <template>
   <q-table
-    class="q-pa-lg col-5 my-sticky-header-table"
+    class="q-pa-lg q-mt-xl"
     title="체결내역"
     :rows="transactionData"
     :columns="transactionColumns"
@@ -48,6 +48,7 @@ const transactionColumns = [
     align: "center",
     label: "시간",
     field: "time",
+    style: "width: 50px",
   },
   {
     name: "price",
@@ -63,3 +64,9 @@ const transactionColumns = [
   },
 ];
 </script>
+<style scoped>
+.q-table--dense .q-table th,
+.q-table--dense .q-table td {
+  width: 200px;
+}
+</style>

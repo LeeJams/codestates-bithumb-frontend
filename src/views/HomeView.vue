@@ -73,7 +73,9 @@
               :props="props"
               @click="moveDetailPage(props.row)"
             >
-              {{ props.row.openPrice }}원
+              <span :class="{ active: props.row.active }"
+                >{{ props.row.openPrice }}원</span
+              >
             </q-td>
             <q-td
               key="chgRate"
@@ -179,6 +181,7 @@ const getAllCoinData = async (): Promise<Array<string>> => {
           `${Math.round(parseInt(data.acc_trade_value_24H))}`
         ),
         up: Number(data.fluctate_rate_24H),
+        active: false,
       };
     }
   }
@@ -195,6 +198,8 @@ const onMessage = (event: MessageEvent) => {
       (n) => n.engName === symbol.substring(0, 3)
     );
     if (idx !== -1) {
+      allCoinData.value[idx].active =
+        allCoinData.value[idx].openPrice !== numberFormat(openPrice);
       allCoinData.value[idx].chgPrice = numberFormat(chgAmt);
       allCoinData.value[idx].chgRate = chgRate;
       allCoinData.value[idx].openPrice = numberFormat(openPrice);
@@ -202,6 +207,9 @@ const onMessage = (event: MessageEvent) => {
         `${Math.round(parseInt(value))}`
       );
       allCoinData.value[idx].up = Number(data.content.chgRate);
+      setTimeout(() => {
+        allCoinData.value[idx].active = false;
+      }, 500);
     }
   }
 };
