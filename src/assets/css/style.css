@@ -20,8 +20,11 @@ body {
 .blueColor span {
   color: #4386f9;
 }
-.active {
-  border-bottom: 2px solid #008a7d
+.redBorder {
+  border-bottom: 2px solid #f75467
+}
+.blueBorder {
+  border-bottom: 2px solid #4386f9
 }
 .container section .item_box {
   width: 45%;

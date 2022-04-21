@@ -202,6 +202,8 @@ export const COIN_NAME = {
   NPT: "네오핀",
   REI: "레이",
   T: "쓰레스홀드",
+  SWAP: "트러스트스왑",
+  PLA: "플레이댑",
 };
 
 export default {

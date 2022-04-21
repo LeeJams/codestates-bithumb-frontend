@@ -13,6 +13,19 @@
       />
     </div>
     <div class="q-pa-md">
+      <div class="row justify-end q-mb-sm">
+        <q-input
+          v-model="filter"
+          placeholder="코인 검색"
+          dark
+          dense
+          style="max-width: 400px"
+        >
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </div>
       <q-table
         :rows="toggleView ? allCoinData : favoriteCoins"
         :columns="columns"
@@ -24,19 +37,6 @@
         :pagination="pagination"
         style="height: 100%"
       >
-        <template v-slot:top-right>
-          <q-input
-            dense
-            debounce="300"
-            v-model="filter"
-            placeholder="코인 검색"
-            dark
-          >
-            <template v-slot:append>
-              <q-icon name="search" />
-            </template>
-          </q-input>
-        </template>
         <template v-slot:header="props">
           <q-tr :props="props">
             <q-th auto-width />
@@ -73,7 +73,7 @@
               :props="props"
               @click="moveDetailPage(props.row)"
             >
-              <span :class="{ active: props.row.active }"
+              <span :class="props.row.activeStatus"
                 >{{ props.row.openPrice }}원</span
               >
             </q-td>
@@ -181,7 +181,7 @@ const getAllCoinData = async (): Promise<Array<string>> => {
           `${Math.round(parseInt(data.acc_trade_value_24H))}`
         ),
         up: Number(data.fluctate_rate_24H),
-        active: false,
+        activeStatus: "",
       };
     }
   }
@@ -198,8 +198,11 @@ const onMessage = (event: MessageEvent) => {
       (n) => n.engName === symbol.substring(0, 3)
     );
     if (idx !== -1) {
-      allCoinData.value[idx].active =
-        allCoinData.value[idx].openPrice !== numberFormat(openPrice);
+      if (allCoinData.value[idx].openPrice < numberFormat(openPrice)) {
+        allCoinData.value[idx].activeStatus = "redBorder";
+      } else if (allCoinData.value[idx].openPrice > numberFormat(openPrice)) {
+        allCoinData.value[idx].activeStatus = "blueBorder";
+      }
       allCoinData.value[idx].chgPrice = numberFormat(chgAmt);
       allCoinData.value[idx].chgRate = chgRate;
       allCoinData.value[idx].openPrice = numberFormat(openPrice);
@@ -208,7 +211,7 @@ const onMessage = (event: MessageEvent) => {
       );
       allCoinData.value[idx].up = Number(data.content.chgRate);
       setTimeout(() => {
-        allCoinData.value[idx].active = false;
+        allCoinData.value[idx].activeStatus = "";
       }, 500);
     }
   }

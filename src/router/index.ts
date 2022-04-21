@@ -19,7 +19,7 @@ const router = createRouter({
     {
       path: "/detail/:symbol",
       name: "CoinInfo",
-      component: import("@/views/CoinInfo.vue"),
+      component: () => import("@/views/CoinInfo.vue"),
       props: true,
     },
   ],
