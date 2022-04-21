@@ -6,10 +6,9 @@
     :columns="transactionColumns"
     row-key="time"
     dark
-    style="height: 500px"
     hide-bottom
     :pagination="pagination"
-    flat
+    dense
   >
     <template v-slot:body="props">
       <q-tr :props="props">

@@ -6,8 +6,8 @@
     <section class="row justify-around q-mt-xl">
       <TransactionDataTable :transactionData="transactionData" />
       <OrderbookDataTable
-        :askList="Object.entries(askList).reverse()"
-        :bidList="Object.entries(bidList).reverse()"
+        :askList="Object.entries(askList).reverse().slice(0, 10)"
+        :bidList="Object.entries(bidList).reverse().slice(0, 10)"
       />
     </section>
   </div>
@@ -83,13 +83,13 @@ const onMessage = (event: MessageEvent) => {
         askList.value[price] = parseFloat(quantity);
         const forFilter = Object.entries(askList.value);
         askList.value = Object.fromEntries(
-          forFilter.filter((n) => n[1] !== 0).slice(0, 10)
+          forFilter.filter((n) => n[1] !== 0).slice(0, 20)
         );
       } else if (orderType === "bid") {
         bidList.value[price] = parseFloat(quantity);
         const forFilter = Object.entries(bidList.value);
         bidList.value = Object.fromEntries(
-          forFilter.filter((n) => n[1] !== 0).slice(0, 10)
+          forFilter.filter((n) => n[1] !== 0).slice(0, 20)
         );
       }
     }

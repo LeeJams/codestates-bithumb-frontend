@@ -1,29 +1,33 @@
 <template>
-  <div class="">
-    <p>모아보기</p>
-    <div class="item">
-      <BarChart :chartData="chartData" :options="options" />
-      <table border="">
-        <thead>
-          <th>판매 수량({{ route.params.symbol }})</th>
-          <th>가격(KRW)</th>
-          <th>구매 수량({{ route.params.symbol }})</th>
-        </thead>
-        <tbody>
-          <tr v-for="(data, idx) in askList" :key="idx">
-            <td style="color: blue; text-align: right">{{ data[1] }}</td>
-            <td style="text-align: center">{{ numberFormat(data[0]) }}</td>
-            <td></td>
-          </tr>
-          <tr v-for="(data, idx) in bidList" :key="idx">
-            <td></td>
-            <td style="text-align: center">{{ numberFormat(data[0]) }}</td>
-            <td style="color: red; text-align: right">{{ data[1] }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <q-table
+    class="q-pa-lg"
+    title="모아보기"
+    :rows="rowData"
+    :columns="columns"
+    row-key="price"
+    dark
+    hide-bottom
+    :pagination="pagination"
+    dense
+  >
+    <template v-slot:body="props">
+      <q-tr :props="props">
+        <q-td key="ask" :props="props" class="blueColor">
+          <span v-if="props.row.type === 'ask'">{{
+            numberFormat(props.row.qty)
+          }}</span>
+        </q-td>
+        <q-td key="price" :props="props">
+          {{ numberFormat(props.row.price) }}
+        </q-td>
+        <q-td key="bid" :props="props" class="redColor">
+          <span v-if="props.row.type === 'bid'">{{
+            numberFormat(props.row.qty)
+          }}</span>
+        </q-td>
+      </q-tr>
+    </template>
+  </q-table>
 </template>
 
 <script setup lang="ts">
@@ -36,7 +40,7 @@ import { computed, ref } from "vue";
 
 Chart.register(...registerables);
 const route = useRoute();
-
+const pagination = ref({ rowsPerPage: 0 });
 const props = defineProps({
   askList: {
     type: Array as PropType<[string, number][]>,
@@ -48,21 +52,41 @@ const props = defineProps({
   },
 });
 
+const rowData = computed(() => [
+  ...props.askList.map((n) => ({ price: n[0], qty: n[1], type: "ask" })),
+  ...props.bidList.map((n) => ({ price: n[0], qty: n[1], type: "bid" })),
+]);
+
+const columns = [
+  {
+    name: "ask",
+    align: "right",
+    label: `판매 수량(${route.params.symbol})`,
+    field: "ask",
+  },
+  {
+    name: "price",
+    align: "center",
+    label: "현재가",
+    field: "price",
+  },
+  {
+    name: "bid",
+    align: "right",
+    label: `구매 수량(${route.params.symbol})`,
+    field: "bid",
+  },
+];
+
 const chartData = computed(() => ({
-  labels: [
-    ...props.bidList.map((n) => n[0]),
-    ...props.askList.map((n) => n[0]),
-  ].sort(),
+  labels: rowData.value.map((n) => n.price),
 
   datasets: [
     {
       label: "Data One",
       backgroundColor: "#f87979",
       barThickness: 10,
-      data: [
-        ...props.bidList.map((n) => n[1]),
-        ...props.askList.map((n) => n[1]),
-      ].sort(),
+      data: rowData.value.map((n) => n.qty),
     },
   ],
 }));
