@@ -21,10 +21,10 @@ body {
   color: #4386f9;
 }
 .redBorder {
-  border-bottom: 2px solid #f75467
+  border-bottom: 2px solid #f75467;
 }
 .blueBorder {
-  border-bottom: 2px solid #4386f9
+  border-bottom: 2px solid #4386f9;
 }
 .container section .item_box {
   width: 45%;
@@ -43,4 +43,21 @@ body {
   font-size: 12px;
   margin-left: 22px;
   color: grey;
+}
+
+.orderBookDIvAsk {
+  height: 100%;
+  top: 0;
+  right: 0;
+  position: absolute;
+  border-radius: 3px 0px 0px 3px;
+  background-color: #20548169
+}
+.orderBookDIvBid {
+  height: 100%;
+  top: 0;
+  left: 0;
+  position: absolute;
+  border-radius: 3px 0px 0px 3px;
+  background-color: #9c2e2170
 }

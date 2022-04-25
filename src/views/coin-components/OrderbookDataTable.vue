@@ -16,6 +16,11 @@
           <span v-if="props.row.type === 'ask'">{{
             numberFormat(props.row.qty)
           }}</span>
+          <div
+            v-if="props.row.type === 'ask'"
+            class="orderBookDIvAsk"
+            :style="widthValue(props.row.qty)"
+          ></div>
         </q-td>
         <q-td key="price" :props="props">
           {{ numberFormat(props.row.price) }}
@@ -24,6 +29,11 @@
           <span v-if="props.row.type === 'bid'">{{
             numberFormat(props.row.qty)
           }}</span>
+          <div
+            v-if="props.row.type === 'bid'"
+            class="orderBookDIvBid"
+            :style="widthValue(props.row.qty)"
+          ></div>
         </q-td>
       </q-tr>
     </template>
@@ -35,7 +45,6 @@ import { useRoute } from "vue-router";
 import { numberFormat } from "@/utils/common";
 import type { PropType } from "vue-demi";
 import { Chart, registerables } from "chart.js";
-import { BarChart } from "vue-chart-3";
 import { computed, ref } from "vue";
 
 Chart.register(...registerables);
@@ -71,6 +80,11 @@ const rowData = computed(() => [
     ),
 ]);
 
+const maxQty = computed(() => Math.max(...rowData.value.map((n) => n.qty)));
+const widthValue = (qty: number) => {
+  return `width: ${Math.round((qty * 100) / maxQty.value)}%`;
+};
+
 const columns = [
   {
     name: "ask",
@@ -91,42 +105,4 @@ const columns = [
     field: "bid",
   },
 ];
-
-const chartData = computed(() => ({
-  labels: rowData.value.map((n) => n.price),
-
-  datasets: [
-    {
-      label: "Data One",
-      backgroundColor: "#f87979",
-      barThickness: 10,
-      data: rowData.value.map((n) => n.qty),
-    },
-  ],
-}));
-const options = ref({
-  responsive: true,
-  indexAxis: "y",
-  scales: {
-    x2: {
-      display: false,
-    },
-    y2: {
-      // display: false,
-      // position: "right",
-      reverse: true,
-    },
-  },
-  plugins: {
-    legend: {
-      display: false,
-    },
-    title: {
-      display: false,
-    },
-    tooltip: {
-      enabled: false,
-    },
-  },
-});
 </script>

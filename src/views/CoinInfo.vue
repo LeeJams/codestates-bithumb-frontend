@@ -85,6 +85,7 @@ const onMessage = (event: MessageEvent) => {
         askList.value = Object.fromEntries(
           forFilter
             .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))
+            .filter((n) => n[1] !== 0)
             .slice(0, 20)
         );
       } else if (orderType === "bid") {
@@ -93,6 +94,7 @@ const onMessage = (event: MessageEvent) => {
         bidList.value = Object.fromEntries(
           forFilter
             .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))
+            .filter((n) => n[1] !== 0)
             .slice(0, 20)
         );
       }
