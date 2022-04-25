@@ -53,8 +53,22 @@ const props = defineProps({
 });
 
 const rowData = computed(() => [
-  ...props.askList.map((n) => ({ price: n[0], qty: n[1], type: "ask" })),
-  ...props.bidList.map((n) => ({ price: n[0], qty: n[1], type: "bid" })),
+  ...props.askList
+    .map((n) => ({ price: n[0], qty: n[1], type: "ask" }))
+    .sort(
+      (
+        a: { price: string; qty: number; type: string },
+        b: { price: string; qty: number; type: string }
+      ) => parseFloat(b.price) - parseFloat(a.price)
+    ),
+  ...props.bidList
+    .map((n) => ({ price: n[0], qty: n[1], type: "bid" }))
+    .sort(
+      (
+        a: { price: string; qty: number; type: string },
+        b: { price: string; qty: number; type: string }
+      ) => parseFloat(b.price) - parseFloat(a.price)
+    ),
 ]);
 
 const columns = [
