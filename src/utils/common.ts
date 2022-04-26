@@ -2,7 +2,7 @@ export const numberFormat = (number: string) => {
   return new Intl.NumberFormat("ko-KR", {}).format(Number(number));
 };
 
-export const COIN_NAME = {
+export const COIN_NAME: { [key: string]: string } = {
   BTC: "비트코인",
   ETH: "이더리움",
   LTC: "라이트코인",

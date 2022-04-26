@@ -100,7 +100,7 @@
 </template>
 <script setup lang="ts">
 import type { CoinTableRowItems, TickerContent } from "@/types/dataType";
-import { computed, onBeforeUnmount, onMounted, ref, watchEffect } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { numberFormat, COIN_NAME } from "@/utils/common";
 import { useRouter } from "vue-router";
 import http from "@/utils/http";
