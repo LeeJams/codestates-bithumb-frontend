@@ -105,6 +105,7 @@ import { numberFormat, COIN_NAME } from "@/utils/common";
 import { useRouter } from "vue-router";
 import http from "@/utils/http";
 import { useCookies } from "vue3-cookies";
+import type { QTableProps } from "quasar";
 
 const router = useRouter();
 const filter = ref("");
@@ -113,7 +114,7 @@ const favoriteCoins = computed(() =>
 );
 const toggleView = ref(true);
 const pagination = ref({ rowsPerPage: 0 });
-const columns = [
+const columns: QTableProps["columns"] = [
   {
     name: "name",
     align: "left",

@@ -3,7 +3,7 @@
     class="q-pa-lg q-mt-xl"
     title="체결내역"
     :rows="transactionData"
-    :columns="transactionColumns"
+    :columns="columns"
     row-key="time"
     dark
     hide-bottom
@@ -31,6 +31,7 @@
 </template>
 
 <script setup lang="ts">
+import type { QTableProps } from "quasar";
 import { ref } from "vue";
 import type { PropType } from "vue-demi";
 const props = defineProps({
@@ -42,7 +43,7 @@ const props = defineProps({
   },
 });
 const pagination = ref({ rowsPerPage: 0 });
-const transactionColumns = [
+const columns: QTableProps["columns"] = [
   {
     name: "time",
     align: "center",

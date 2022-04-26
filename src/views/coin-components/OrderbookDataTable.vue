@@ -46,6 +46,7 @@ import { numberFormat } from "@/utils/common";
 import type { PropType } from "vue-demi";
 import { Chart, registerables } from "chart.js";
 import { computed, ref } from "vue";
+import type { QTableProps } from "quasar";
 
 Chart.register(...registerables);
 const route = useRoute();
@@ -85,7 +86,7 @@ const widthValue = (qty: number) => {
   return `width: ${Math.round((qty * 100) / maxQty.value)}%`;
 };
 
-const columns = [
+const columns: QTableProps["columns"] = [
   {
     name: "ask",
     label: `판매 수량(${route.params.symbol})`,
