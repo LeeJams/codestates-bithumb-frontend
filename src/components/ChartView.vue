@@ -5,7 +5,6 @@
 </template>
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import Vue3ChartJs from "@j-t-mcc/vue3-chartjs";
 import {
   CandlestickController,
   CandlestickElement,

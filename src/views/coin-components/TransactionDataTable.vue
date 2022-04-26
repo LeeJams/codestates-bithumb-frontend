@@ -48,7 +48,6 @@ const transactionColumns = [
     align: "center",
     label: "시간",
     field: "time",
-    style: "width: 50px",
   },
   {
     name: "price",

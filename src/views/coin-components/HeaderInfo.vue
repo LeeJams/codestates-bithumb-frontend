@@ -1,7 +1,7 @@
 <template>
   <header>
     <h5>
-      {{ COIN_NAME[route.params.symbol] }}
+      {{ COIN_NAME[symbol] }}
     </h5>
     <div class="row justify-evenly" :class="isUp ? 'redColor' : 'blueColor'">
       <p>
@@ -42,7 +42,7 @@ const props = defineProps({
     default: () => ({}),
   },
 });
-
+const symbol = computed(() => route.params.symbol as string);
 const route = useRoute();
 const isUp = computed(() => Number(props.coinData.chgRate) > 0);
 </script>

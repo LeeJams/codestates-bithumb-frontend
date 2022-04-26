@@ -88,21 +88,21 @@ const widthValue = (qty: number) => {
 const columns = [
   {
     name: "ask",
-    align: "right",
     label: `판매 수량(${route.params.symbol})`,
     field: "ask",
+    align: "right",
   },
   {
     name: "price",
-    align: "center",
     label: "현재가",
     field: "price",
+    align: "center",
   },
   {
     name: "bid",
-    align: "right",
     label: `구매 수량(${route.params.symbol})`,
     field: "bid",
+    align: "right",
   },
 ];
 </script>
