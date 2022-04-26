@@ -12,9 +12,9 @@ import {
 } from "chartjs-chart-financial";
 import "chartjs-adapter-luxon";
 import type {
-  TickerContent,
   ChartData,
   CandleStickChartData,
+  CoinHeaderData,
 } from "@/types/dataType";
 import { Chart } from "chart.js";
 import http from "@/utils/http";
@@ -23,11 +23,12 @@ import zoomPlugin from "chartjs-plugin-zoom";
 import type { PropType } from "vue-demi";
 
 const route = useRoute();
-// const props = defineProps({
-//   coinData: {
-//     type: Object as PropType<TickerContent>,
-//   },
-// });
+const props = defineProps({
+  coinData: {
+    type: Object as PropType<CoinHeaderData>,
+    default: () => ({}),
+  },
+});
 
 const chartData = ref<ChartData[]>([]);
 
@@ -50,10 +51,14 @@ onMounted(() => {
   setChartData();
 });
 
+const myChart = ref();
+const canvas = ref();
+const ctx = ref();
+
 const drewChart = () => {
-  const canvas = document.getElementById("myChart") as HTMLCanvasElement;
-  const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
-  const myChart = new Chart(ctx, {
+  canvas.value = document.getElementById("myChart") as HTMLCanvasElement;
+  ctx.value = canvas.value.getContext("2d") as CanvasRenderingContext2D;
+  myChart.value = new Chart(ctx.value, {
     type: "candlestick",
     data: {
       datasets: [

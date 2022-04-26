@@ -1,8 +1,8 @@
 <template>
   <div class="container">
     <HeaderInfo :coinData="coinData" />
-    <!-- <ApexChart /> -->
-    <ChartView />
+    <!-- <ApexChart :coinData="coinData" /> -->
+    <ChartView :coinData="coinData" />
     <section class="row justify-around q-mt-xl">
       <TransactionDataTable :transactionData="transactionData" />
       <OrderbookDataTable

@@ -7,11 +7,17 @@
   ></apexchart>
 </template>
 <script setup lang="ts">
-import type { CandleStickChartData } from "@/types/dataType";
+import type { CandleStickChartData, CoinHeaderData } from "@/types/dataType";
 import http from "@/utils/http";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watchEffect } from "vue";
+import type { PropType } from "vue-demi";
 import { useRoute } from "vue-router";
-const props = defineProps({});
+const props = defineProps({
+  coinData: {
+    type: Object as PropType<CoinHeaderData>,
+    default: () => ({}),
+  },
+});
 const route = useRoute();
 const options = {
   chart: {
@@ -25,10 +31,6 @@ const options = {
   xaxis: {
     type: "datetime",
   },
-  tooltip: {
-    enabled: true,
-    color: "black",
-  },
   plotOptions: {
     candlestick: {
       colors: {
@@ -40,12 +42,32 @@ const options = {
 };
 const setChartData = async () => {
   const result: CandleStickChartData = await http.get(
-    `/candlestick/${route.params.symbol}_KRW/10m`
+    `/candlestick/${route.params.symbol}_KRW/24h`
   );
-  series.value[0].data = result.data.map((n) => ({
-    x: new Date(n[0]),
-    y: [n[1], n[3], n[4], n[2]],
-  }));
+  series.value[0].data = result.data
+    .map((n) => ({
+      x: new Date(n[0]),
+      y: [n[1], n[3], n[4], n[2]],
+    }))
+    .slice(-300);
+
+  test();
+};
+
+const test = () => {
+  watchEffect(() => {
+    if (
+      props.coinData.openPrice !==
+      series.value[0].data[series.value[0].data.length - 1].y[0]
+    ) {
+      series.value[0].data[series.value[0].data.length - 1].y = [
+        props.coinData.openPrice,
+        props.coinData.highPrice,
+        props.coinData.lowPrice,
+        props.coinData.closePrice,
+      ];
+    }
+  });
 };
 const series = ref<{ data: { x: Date; y: Array<string> }[] }[]>([
   {

@@ -32,7 +32,8 @@
 <script setup lang="ts">
 import type { CoinHeaderData } from "@/types/dataType";
 import { numberFormat, COIN_NAME } from "@/utils/common";
-import { computed, type PropType } from "vue";
+import { computed } from "vue";
+import type { PropType } from "vue-demi";
 import { useRoute } from "vue-router";
 
 const props = defineProps({
