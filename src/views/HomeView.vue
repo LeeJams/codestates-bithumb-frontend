@@ -60,7 +60,7 @@
             <q-td key="name" :props="props" @click="moveDetailPage(props.row)">
               <img
                 v-if="props.row.engName !== 'CON'"
-                :src="`src/assets/images/coin-icon/${props.row.engName}.png`"
+                :src="imageUrl(props.row.engName)"
                 alt=""
                 style="width: 1rem; height: 1rem; margin-right: 2px"
               />
@@ -149,6 +149,11 @@ const columns: QTableProps["columns"] = [
       parseInt(a.split(",").join(""), 10) - parseInt(b.split(",").join(""), 10),
   },
 ];
+
+const imageUrl = (name: string) => {
+  return new URL(`../assets/images/coin-icon/${name}.png`, import.meta.url)
+    .href;
+};
 
 const allCoinData = ref<CoinTableRowItems[]>([]);
 const selected = ref<Array<string>>([]);
