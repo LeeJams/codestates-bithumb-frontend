@@ -191,7 +191,6 @@ const getAllCoinData = async (): Promise<Array<string>> => {
       };
     }
   }
-
   return tickTypes;
 };
 
@@ -238,15 +237,22 @@ const connectSocket = (ticker: string) => {
 };
 
 onMounted(async () => {
-  const types = await getAllCoinData();
-  const ticker = JSON.stringify({
-    type: "ticker",
-    symbols: types,
-    tickTypes: ["24H"],
-  });
-  connectSocket(ticker);
-  const coins = cookies.get("favoriteCoins");
-  selected.value = coins?.split(",") || [];
+  try {
+    const types = await getAllCoinData();
+    const ticker = JSON.stringify({
+      type: "ticker",
+      symbols: types,
+      tickTypes: ["24H"],
+    });
+    connectSocket(ticker);
+    const coins = cookies.get("favoriteCoins");
+    selected.value = coins?.split(",") || [];
+  } catch (e) {
+    console.log(e);
+    alert(
+      "코인 정보를 가져오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요"
+    );
+  }
 });
 onBeforeUnmount(() => {
   socket.value.close();
