@@ -39,6 +39,9 @@ const options = {
       },
     },
   },
+  noData: {
+    text: "Loading...",
+  },
 };
 const setChartData = async () => {
   const result: CandleStickChartData = await http.get(
@@ -49,7 +52,7 @@ const setChartData = async () => {
       x: new Date(n[0]),
       y: [n[1], n[3], n[4], n[2]],
     }))
-    .slice(-300);
+    .slice(-30);
 
   test();
 };
@@ -60,6 +63,7 @@ const test = () => {
       props.coinData.openPrice !==
       series.value[0].data[series.value[0].data.length - 1].y[0]
     ) {
+      series.value[0].data[series.value[0].data.length - 1].x = new Date();
       series.value[0].data[series.value[0].data.length - 1].y = [
         props.coinData.openPrice,
         props.coinData.highPrice,

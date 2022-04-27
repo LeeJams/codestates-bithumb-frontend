@@ -1,8 +1,17 @@
 <template>
   <div class="container">
+    <div class="q-pa-md"></div>
     <HeaderInfo :coinData="coinData" />
-    <!-- <ApexChart :coinData="coinData" /> -->
-    <ChartView :coinData="coinData" />
+    <ChartView :coinData="coinData" v-if="selectedChart === 'Chart.js'" />
+    <ApexChart :coinData="coinData" v-else />
+    <q-select
+      v-model="selectedChart"
+      :options="['Chart.js', 'ApexChart', 'VueTrade']"
+      label="Kind of Chart"
+      dark
+      outlined
+      style="max-width: 400px"
+    />
     <section class="row justify-around q-mt-xl">
       <TransactionDataTable :transactionData="transactionData" />
       <OrderbookDataTable
@@ -25,7 +34,7 @@ import type {
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import ChartView from "@/components/ChartView.vue";
-// import ApexChart from "@/components/ApexChart.vue";
+import ApexChart from "@/components/ApexChart.vue";
 import { numberFormat } from "@/utils/common";
 import HeaderInfo from "./coin-components/HeaderInfo.vue";
 import http from "@/utils/http";
@@ -39,6 +48,7 @@ const transactionData = ref<
 const coinData = ref<CoinHeaderData>();
 const askList = ref<{ [key in string]: number }>({});
 const bidList = ref<{ [key in string]: number }>({});
+const selectedChart = ref("Chart.js");
 
 const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
 const transaction = JSON.stringify({
