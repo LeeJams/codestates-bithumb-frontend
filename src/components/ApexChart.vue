@@ -16,7 +16,7 @@ import { onMounted, ref, watchEffect } from "vue";
 import type { PropType } from "vue-demi";
 import { useRoute } from "vue-router";
 const props = defineProps({
-  coinData: {
+  tickerData: {
     type: Object as PropType<ConvertedTickerData>,
     default: () => ({}),
   },
@@ -26,6 +26,12 @@ const options = {
   chart: {
     type: "candlestick",
     height: 500,
+    animations: {
+      enabled: false,
+    },
+    zoom: {
+      enabled: false,
+    },
   },
   title: {
     text: "CandleStick Chart",
@@ -45,6 +51,30 @@ const options = {
   noData: {
     text: "Loading...",
   },
+  tooltip: {
+    theme: "dark",
+  },
+};
+const series = ref<{ data: { x: Date; y: Array<string> }[] }[]>([
+  {
+    data: [],
+  },
+]);
+
+const test = () => {
+  watchEffect(() => {
+    if (props.tickerData?.openPrice) {
+      series.value[0].data[series.value[0].data.length - 1] = {
+        x: new Date(),
+        y: [
+          props.tickerData.openPrice,
+          props.tickerData.highPrice,
+          props.tickerData.lowPrice,
+          props.tickerData.closePrice,
+        ],
+      };
+    }
+  });
 };
 const setChartData = async () => {
   const result: CandleStickChartData = await http.get(
@@ -56,13 +86,9 @@ const setChartData = async () => {
       y: [n[1], n[3], n[4], n[2]],
     }))
     .slice(-30);
-};
 
-const series = ref<{ data: { x: Date; y: Array<string> }[] }[]>([
-  {
-    data: [],
-  },
-]);
+  test();
+};
 
 onMounted(() => {
   setChartData();

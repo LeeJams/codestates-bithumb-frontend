@@ -1,5 +1,5 @@
 <template>
-  <header>
+  <div>
     <h5>
       {{ COIN_NAME[symbol] }}
     </h5>
@@ -26,7 +26,7 @@
         >원 <span>({{ tickerData?.chgRate }}%)</span>
       </p>
     </div>
-  </header>
+  </div>
 </template>
 
 <script setup lang="ts">

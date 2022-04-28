@@ -1,18 +1,22 @@
 <template>
   <div class="container">
-    <div class="q-pa-md"></div>
-    <HeaderInfo :tickerData="tickerData" />
-    <ChartView :tickerData="tickerData" v-if="selectedChart === 'Chart.js'" />
-    <ApexChart :tickerData="tickerData" v-else />
+    <q-breadcrumbs class="q-mb-md">
+      <q-breadcrumbs-el icon="home" to="/" label="Home" />
+      <q-breadcrumbs-el label="CoinDetail" icon="attach_money" />
+    </q-breadcrumbs>
+    <h5 class="q-mb-md">{{ COIN_NAME[symbol] }} {{ symbol }} / KRW</h5>
     <q-select
       v-model="selectedChart"
-      :options="['Chart.js', 'ApexChart', 'VueTrade']"
-      label="Kind of Chart"
+      :options="['Chart.js', 'ApexChart']"
+      label="차트 종류"
       dark
       outlined
-      style="max-width: 400px"
+      style="max-width: 300px"
+      class="q-mb-xl"
     />
-    <section class="row justify-around q-mt-xl">
+    <ChartView :tickerData="tickerData" v-if="selectedChart === 'Chart.js'" />
+    <ApexChart :tickerData="tickerData" v-else />
+    <section class="row justify-end q-mt-sm">
       <TransactionDataTable :transactionData="transactionData" />
       <OrderbookDataTable
         :askList="Object.entries(askList).slice(0, 10)"
@@ -31,7 +35,7 @@ import type {
   RestTickerData,
   ConvertedTickerData,
 } from "@/types/dataType";
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import ChartView from "@/components/ChartView.vue";
 import ApexChart from "@/components/ApexChart.vue";
@@ -40,9 +44,10 @@ import HeaderInfo from "./coin-components/HeaderInfo.vue";
 import http from "@/utils/http";
 import TransactionDataTable from "./coin-components/TransactionDataTable.vue";
 import OrderbookDataTable from "./coin-components/OrderbookDataTable.vue";
+import { COIN_NAME } from "@/utils/common";
 
 const route = useRoute();
-
+const symbol = computed(() => route.params.symbol as string);
 const tickerData = ref<ConvertedTickerData>();
 const askList = ref<{ [key in string]: number }>({});
 const bidList = ref<{ [key in string]: number }>({});

@@ -1,6 +1,6 @@
 <template>
   <q-table
-    class="q-pa-lg q-mt-xl"
+    class="q-pa-lg q-ml-xl"
     title="모아보기"
     :rows="rowData"
     :columns="columns"

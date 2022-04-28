@@ -1,5 +1,8 @@
 <template>
   <div class="container">
+    <q-breadcrumbs class="q-mb-md q-ml-md">
+      <q-breadcrumbs-el icon="home" label="Home" />
+    </q-breadcrumbs>
     <div class="q-pa-md text-white">
       <q-btn-toggle
         v-model="toggleView"

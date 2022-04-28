@@ -1,6 +1,6 @@
 <template>
   <q-table
-    class="q-pa-lg q-mt-xl"
+    class="q-pa-lg"
     title="체결내역"
     :rows="transactionData"
     :columns="columns"
