@@ -44,13 +44,9 @@
 import { useRoute } from "vue-router";
 import { numberFormat } from "@/utils/common";
 import type { PropType } from "vue-demi";
-import { Chart, registerables } from "chart.js";
 import { computed, ref } from "vue";
 import type { QTableProps } from "quasar";
 
-Chart.register(...registerables);
-const route = useRoute();
-const pagination = ref({ rowsPerPage: 0 });
 const props = defineProps({
   askList: {
     type: Array as PropType<[string, number][]>,
@@ -61,6 +57,8 @@ const props = defineProps({
     default: () => [],
   },
 });
+
+const route = useRoute();
 
 const rowData = computed(() => [
   ...props.askList
@@ -86,6 +84,7 @@ const widthValue = (qty: number) => {
   return `width: ${Math.round((qty * 100) / maxQty.value)}%`;
 };
 
+const pagination = ref({ rowsPerPage: 0 });
 const columns: QTableProps["columns"] = [
   {
     name: "ask",

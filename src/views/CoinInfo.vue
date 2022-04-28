@@ -1,9 +1,9 @@
 <template>
   <div class="container">
     <div class="q-pa-md"></div>
-    <HeaderInfo :coinData="coinData" />
-    <ChartView :coinData="coinData" v-if="selectedChart === 'Chart.js'" />
-    <ApexChart :coinData="coinData" v-else />
+    <HeaderInfo :tickerData="tickerData" />
+    <ChartView :tickerData="tickerData" v-if="selectedChart === 'Chart.js'" />
+    <ApexChart :tickerData="tickerData" v-else />
     <q-select
       v-model="selectedChart"
       :options="['Chart.js', 'ApexChart', 'VueTrade']"
@@ -29,7 +29,7 @@ import type {
   TickerContent,
   RestTransactionData,
   RestTickerData,
-  CoinHeaderData,
+  ConvertedTickerData,
 } from "@/types/dataType";
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
@@ -42,88 +42,17 @@ import TransactionDataTable from "./coin-components/TransactionDataTable.vue";
 import OrderbookDataTable from "./coin-components/OrderbookDataTable.vue";
 
 const route = useRoute();
+
+const tickerData = ref<ConvertedTickerData>();
+const askList = ref<{ [key in string]: number }>({});
+const bidList = ref<{ [key in string]: number }>({});
 const transactionData = ref<
   { time: string; price: string; qty: string; updn: string }[]
 >([]);
-const coinData = ref<CoinHeaderData>();
-const askList = ref<{ [key in string]: number }>({});
-const bidList = ref<{ [key in string]: number }>({});
+
 const selectedChart = ref("Chart.js");
 
-const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
-const transaction = JSON.stringify({
-  type: "transaction",
-  symbols: [`${route.params.symbol}_KRW`],
-});
-const orderbook = JSON.stringify({
-  type: "orderbookdepth",
-  symbols: [`${route.params.symbol}_KRW`],
-});
-const ticker = JSON.stringify({
-  type: "ticker",
-  symbols: [`${route.params.symbol}_KRW`],
-  tickTypes: ["24H"],
-});
-
-const onOpen = () => {
-  socket.value.send(transaction);
-  socket.value.send(orderbook);
-  socket.value.send(ticker);
-};
-
-const onMessage = (event: MessageEvent) => {
-  const data = JSON.parse(event.data);
-  if (data?.type === "transaction") {
-    const { contDtm, contPrice, contQty, updn } = data.content
-      .list[0] as TransactionContents;
-    transactionData.value = [
-      {
-        time: contDtm.substring(10, 19),
-        price: numberFormat(contPrice),
-        qty: `${contQty.substring(0, 6)}BTC`,
-        updn,
-      },
-      ...transactionData.value.slice(0, 19),
-    ];
-  } else if (data?.type === "orderbookdepth") {
-    const res = data.content.list as OrderbookContents[];
-    for (let i = 0; i < res.length; i++) {
-      const { orderType, price, quantity } = res[i];
-      if (orderType === "ask") {
-        askList.value[price] = parseFloat(quantity);
-        const forFilter = Object.entries(askList.value);
-        askList.value = Object.fromEntries(
-          forFilter
-            .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))
-            .filter((n) => n[1] !== 0)
-            .slice(0, 20)
-        );
-      } else if (orderType === "bid") {
-        bidList.value[price] = parseFloat(quantity);
-        const forFilter = Object.entries(bidList.value);
-        bidList.value = Object.fromEntries(
-          forFilter
-            .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))
-            .filter((n) => n[1] !== 0)
-            .slice(0, 20)
-        );
-      }
-    }
-  } else if (data?.type === "ticker") {
-    const { lowPrice, highPrice, openPrice, closePrice, chgRate, chgAmt } =
-      data.content as TickerContent;
-    coinData.value = {
-      lowPrice,
-      highPrice,
-      openPrice,
-      closePrice,
-      chgRate,
-      chgAmt,
-    };
-  }
-};
-
-const initTransactionData = async () => {
+const setInitTransactionData = async () => {
   try {
     const result: RestTransactionData = await http.get(
       `/transaction_history/${route.params.symbol}_KRW`
@@ -138,12 +67,13 @@ const initTransactionData = async () => {
     console.log(e);
   }
 };
-const initTickerData = async () => {
+
+const setInitTickerData = async () => {
   try {
     const result: RestTickerData = await http.get(
       `/ticker/${route.params.symbol}_KRW`
     );
-    coinData.value = {
+    tickerData.value = {
       lowPrice: result.data.min_price,
       openPrice: result.data.opening_price,
       highPrice: result.data.max_price,
@@ -155,29 +85,119 @@ const initTickerData = async () => {
     console.log(e);
   }
 };
-const initOrderbookData = async () => {
-  try {
-    // CORS 애러
-    // const result: RestOrderbookData = await http.get(
-    //   `/orderbook/${route.params.symbol}_KRW`
-    // );
-    // console.log(result);
-  } catch (e) {
-    console.log(e);
+
+const setInitOrderbookData = async () => {
+  // CORS 애러
+  // try {
+  //   const result: RestOrderbookData = await http.get(
+  //     `/orderbook/${route.params.symbol}_KRW`
+  //   );
+  //   console.log(result);
+  // } catch (e) {
+  //   console.log(e);
+  // }
+};
+
+const setSocketTransactionData = (data: TransactionContents) => {
+  transactionData.value = [
+    {
+      time: data.contDtm.substring(10, 19),
+      price: numberFormat(data.contPrice),
+      qty: `${data.contQty.substring(0, 6)}BTC`,
+      updn: data.updn,
+    },
+    ...transactionData.value.slice(0, 19),
+  ];
+};
+
+const setSocketOrderbookData = (orderbooks: OrderbookContents[]) => {
+  for (let i = 0; i < orderbooks.length; i++) {
+    const { orderType, price, quantity } = orderbooks[i];
+
+    if (orderType === "ask") {
+      askList.value[price] = parseFloat(quantity);
+      const forFilter = Object.entries(askList.value);
+      askList.value = Object.fromEntries(
+        forFilter
+          .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))
+          .filter((n) => n[1] !== 0)
+          .slice(0, 20)
+      );
+    } else if (orderType === "bid") {
+      bidList.value[price] = parseFloat(quantity);
+      const forFilter = Object.entries(bidList.value);
+      bidList.value = Object.fromEntries(
+        forFilter
+          .sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))
+          .filter((n) => n[1] !== 0)
+          .slice(0, 20)
+      );
+    }
   }
+};
+
+const setSocketTickerData = (data: TickerContent) => {
+  const { lowPrice, highPrice, openPrice, closePrice, chgRate, chgAmt } = data;
+  tickerData.value = {
+    lowPrice,
+    highPrice,
+    openPrice,
+    closePrice,
+    chgRate,
+    chgAmt,
+  };
+};
+
+const transaction = JSON.stringify({
+  type: "transaction",
+  symbols: [`${route.params.symbol}_KRW`],
+});
+const orderbook = JSON.stringify({
+  type: "orderbookdepth",
+  symbols: [`${route.params.symbol}_KRW`],
+});
+const ticker = JSON.stringify({
+  type: "ticker",
+  symbols: [`${route.params.symbol}_KRW`],
+  tickTypes: ["24H"],
+});
+
+const onMessage = (event: MessageEvent) => {
+  const data = JSON.parse(event.data);
+
+  if (data?.type === "transaction") {
+    const transaction = data.content.list[0] as TransactionContents;
+    setSocketTransactionData(transaction);
+  } else if (data?.type === "orderbookdepth") {
+    const orderbooks = data.content.list as OrderbookContents[];
+    setSocketOrderbookData(orderbooks);
+  } else if (data?.type === "ticker") {
+    const ticker = data.content as TickerContent;
+    setSocketTickerData(ticker);
+  }
+};
+
+const socket = ref();
+const connectSocket = () => {
+  socket.value = new WebSocket("wss://pubwss.bithumb.com/pub/ws");
+
+  socket.value.onopen = function () {
+    socket.value.send(transaction);
+    socket.value.send(orderbook);
+    socket.value.send(ticker);
+  };
+
+  socket.value.onmessage = function (event: MessageEvent) {
+    onMessage(event);
+  };
 };
 
 onMounted(() => {
   try {
-    socket.value.onopen = function () {
-      onOpen();
-    };
-    socket.value.onmessage = function (event: MessageEvent) {
-      onMessage(event);
-    };
-    initTransactionData();
-    initTickerData();
-    initOrderbookData();
+    setInitTransactionData();
+    setInitTickerData();
+    setInitOrderbookData();
+    connectSocket();
   } catch (e) {
     console.log(e);
     alert(
@@ -185,6 +205,7 @@ onMounted(() => {
     );
   }
 });
+
 onBeforeUnmount(() => {
   socket.value.close();
 });

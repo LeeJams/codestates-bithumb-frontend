@@ -13,14 +13,6 @@ export interface CoinTableRowItems {
   activeStatus: string;
 }
 
-export interface CoinHeaderData {
-  lowPrice: string; // 저가
-  openPrice: string; // 시가
-  highPrice: string; // 고가
-  closePrice: string; // 종가
-  chgRate: string; // 변동률
-  chgAmt: string; // 변동금액
-}
 export interface TickerContent {
   buyVolume: string; // 매수누적거래량
   chgAmt: string; // 변동금액
@@ -38,6 +30,15 @@ export interface TickerContent {
   value: string; // 누적거래금액
   volume: string; // 누적거래량
   volumePower: string; // 체결강도
+}
+
+export interface ConvertedTickerData {
+  lowPrice: string; // 저가
+  openPrice: string; // 시가
+  highPrice: string; // 고가
+  closePrice: string; // 종가
+  chgRate: string; // 변동률
+  chgAmt: string; // 변동금액
 }
 
 export interface ChartData {

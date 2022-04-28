@@ -34,6 +34,7 @@
 import type { QTableProps } from "quasar";
 import { ref } from "vue";
 import type { PropType } from "vue-demi";
+
 const props = defineProps({
   transactionData: {
     type: Array as PropType<
@@ -42,6 +43,7 @@ const props = defineProps({
     default: () => [],
   },
 });
+
 const pagination = ref({ rowsPerPage: 0 });
 const columns: QTableProps["columns"] = [
   {

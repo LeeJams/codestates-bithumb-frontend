@@ -7,14 +7,17 @@
   ></apexchart>
 </template>
 <script setup lang="ts">
-import type { CandleStickChartData, CoinHeaderData } from "@/types/dataType";
+import type {
+  CandleStickChartData,
+  ConvertedTickerData,
+} from "@/types/dataType";
 import http from "@/utils/http";
 import { onMounted, ref, watchEffect } from "vue";
 import type { PropType } from "vue-demi";
 import { useRoute } from "vue-router";
 const props = defineProps({
   coinData: {
-    type: Object as PropType<CoinHeaderData>,
+    type: Object as PropType<ConvertedTickerData>,
     default: () => ({}),
   },
 });
@@ -53,26 +56,8 @@ const setChartData = async () => {
       y: [n[1], n[3], n[4], n[2]],
     }))
     .slice(-30);
-
-  test();
 };
 
-const test = () => {
-  watchEffect(() => {
-    if (
-      props.coinData.openPrice !==
-      series.value[0].data[series.value[0].data.length - 1].y[0]
-    ) {
-      series.value[0].data[series.value[0].data.length - 1].x = new Date();
-      series.value[0].data[series.value[0].data.length - 1].y = [
-        props.coinData.openPrice,
-        props.coinData.highPrice,
-        props.coinData.lowPrice,
-        props.coinData.closePrice,
-      ];
-    }
-  });
-};
 const series = ref<{ data: { x: Date; y: Array<string> }[] }[]>([
   {
     data: [],

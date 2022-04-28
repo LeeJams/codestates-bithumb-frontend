@@ -13,9 +13,9 @@ import "chartjs-adapter-luxon";
 import type {
   ChartData,
   CandleStickChartData,
-  CoinHeaderData,
+  ConvertedTickerData,
 } from "@/types/dataType";
-import { Chart } from "chart.js";
+import { Chart, registerables } from "chart.js";
 import http from "@/utils/http";
 import { useRoute } from "vue-router";
 import zoomPlugin from "chartjs-plugin-zoom";
@@ -23,8 +23,8 @@ import type { PropType } from "vue-demi";
 
 const route = useRoute();
 const props = defineProps({
-  coinData: {
-    type: Object as PropType<CoinHeaderData>,
+  tickerData: {
+    type: Object as PropType<ConvertedTickerData>,
     default: () => ({}),
   },
 });
@@ -35,6 +35,7 @@ const setChartData = async () => {
   const result: CandleStickChartData = await http.get(
     `/candlestick/${route.params.symbol}_KRW/24h`
   );
+
   chartData.value = result.data.slice(-300).map((n) => ({
     x: n[0],
     o: n[1],
@@ -42,11 +43,18 @@ const setChartData = async () => {
     l: n[4],
     c: n[2],
   }));
+
   drewChart();
 };
 
 onMounted(() => {
-  Chart.register(CandlestickController, CandlestickElement, zoomPlugin);
+  Chart.register(
+    CandlestickController,
+    CandlestickElement,
+    zoomPlugin,
+    ...registerables
+  );
+
   setChartData();
 });
 

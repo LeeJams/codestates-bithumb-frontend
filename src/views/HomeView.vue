@@ -59,10 +59,9 @@
             </q-td>
             <q-td key="name" :props="props" @click="moveDetailPage(props.row)">
               <img
-                v-if="props.row.engName !== 'CON'"
                 :src="imageUrl(props.row.engName)"
-                alt=""
-                style="width: 1rem; height: 1rem; margin-right: 2px"
+                alt="coin image"
+                class="coinImg"
               />
               {{ props.row.name }}<br /><span class="coinEngName"
                 >{{ props.row.engName }}/KRW</span
@@ -108,11 +107,9 @@ import { useCookies } from "vue3-cookies";
 import type { QTableProps } from "quasar";
 
 const router = useRouter();
-const filter = ref("");
-const favoriteCoins = computed(() =>
-  allCoinData.value.filter((n) => selected.value.includes(n.engName))
-);
 const toggleView = ref(true);
+
+const filter = ref("");
 const pagination = ref({ rowsPerPage: 0 });
 const columns: QTableProps["columns"] = [
   {
@@ -155,28 +152,31 @@ const imageUrl = (name: string) => {
     .href;
 };
 
-const allCoinData = ref<CoinTableRowItems[]>([]);
-const selected = ref<Array<string>>([]);
 const { cookies } = useCookies();
+const selected = ref<Array<string>>([]);
+const getCookieData = () => {
+  const coins = cookies.get("favoriteCoins");
+  selected.value = coins?.split(",") || [];
+};
 const setCookie = () => {
   cookies.set("favoriteCoins", selected.value.join(","));
 };
+const favoriteCoins = computed(() =>
+  allCoinData.value.filter((n) => selected.value.includes(n.engName))
+);
 
-const moveDetailPage = (row: CoinTableRowItems) => {
-  router.push({
-    name: "CoinInfo",
-    params: { symbol: row.engName },
-  });
-};
-
+const allCoinData = ref<CoinTableRowItems[]>([]);
 const getAllCoinData = async (): Promise<Array<string>> => {
   const result = await http.get("/ticker/ALL_KRW");
   const keys = Object.keys(result.data);
   const tickTypes = [];
+
   for (let i = 0; i < keys.length; i++) {
     if (keys[i] !== "date") {
       tickTypes.push(`${keys[i]}_KRW`);
+
       const data = result.data[keys[i]];
+
       allCoinData.value[i] = {
         name: COIN_NAME[keys[i]] || "-",
         engName: keys[i],
@@ -191,38 +191,56 @@ const getAllCoinData = async (): Promise<Array<string>> => {
       };
     }
   }
+
   return tickTypes;
+};
+
+const setNewCoinData = (
+  originalCoinInfo: CoinTableRowItems,
+  newCoinInfo: TickerContent
+) => {
+  originalCoinInfo.chgPrice = numberFormat(newCoinInfo.chgAmt);
+  originalCoinInfo.chgRate = newCoinInfo.chgRate;
+  originalCoinInfo.openPrice = numberFormat(newCoinInfo.openPrice);
+  originalCoinInfo.volume = numberFormat(
+    `${Math.round(parseInt(newCoinInfo.value))}`
+  );
+  originalCoinInfo.up = Number(newCoinInfo.chgRate);
+};
+
+const showPriceUpOrDownLine = (
+  originalCoinInfo: CoinTableRowItems,
+  newCoinInfo: TickerContent
+) => {
+  if (originalCoinInfo.openPrice < numberFormat(newCoinInfo.openPrice)) {
+    originalCoinInfo.activeStatus = "redBorder";
+  } else if (originalCoinInfo.openPrice > numberFormat(newCoinInfo.openPrice)) {
+    originalCoinInfo.activeStatus = "blueBorder";
+  }
+  setTimeout(() => {
+    originalCoinInfo.activeStatus = "";
+  }, 500);
 };
 
 const onMessage = (event: MessageEvent) => {
   const data = JSON.parse(event.data);
+
   if (data.type === "ticker") {
-    const { symbol, chgAmt, value, chgRate, openPrice } =
-      data.content as TickerContent;
+    const newCoinInfo = data.content as TickerContent;
+
     const idx = allCoinData.value.findIndex(
-      (n) => n.engName === symbol.substring(0, 3)
+      (n) => n.engName === newCoinInfo.symbol.substring(0, 3)
     );
+
     if (idx !== -1) {
-      if (allCoinData.value[idx].openPrice < numberFormat(openPrice)) {
-        allCoinData.value[idx].activeStatus = "redBorder";
-      } else if (allCoinData.value[idx].openPrice > numberFormat(openPrice)) {
-        allCoinData.value[idx].activeStatus = "blueBorder";
-      }
-      allCoinData.value[idx].chgPrice = numberFormat(chgAmt);
-      allCoinData.value[idx].chgRate = chgRate;
-      allCoinData.value[idx].openPrice = numberFormat(openPrice);
-      allCoinData.value[idx].volume = numberFormat(
-        `${Math.round(parseInt(value))}`
-      );
-      allCoinData.value[idx].up = Number(data.content.chgRate);
-      setTimeout(() => {
-        allCoinData.value[idx].activeStatus = "";
-      }, 500);
+      showPriceUpOrDownLine(allCoinData.value[idx], newCoinInfo);
+      setNewCoinData(allCoinData.value[idx], newCoinInfo);
     }
   }
 };
 
-const socket = ref<WebSocket>(new WebSocket("wss://pubwss.bithumb.com/pub/ws"));
+const socket = ref();
+
 const connectSocket = (ticker: string) => {
   socket.value = new WebSocket("wss://pubwss.bithumb.com/pub/ws");
   socket.value.onopen = function () {
@@ -231,9 +249,13 @@ const connectSocket = (ticker: string) => {
   socket.value.onmessage = function (event: MessageEvent) {
     onMessage(event);
   };
-  socket.value.onclose = function () {
-    socket.value.close();
-  };
+};
+
+const moveDetailPage = (row: CoinTableRowItems) => {
+  router.push({
+    name: "CoinInfo",
+    params: { symbol: row.engName },
+  });
 };
 
 onMounted(async () => {
@@ -245,8 +267,7 @@ onMounted(async () => {
       tickTypes: ["24H"],
     });
     connectSocket(ticker);
-    const coins = cookies.get("favoriteCoins");
-    selected.value = coins?.split(",") || [];
+    getCookieData();
   } catch (e) {
     console.log(e);
     alert(
@@ -254,6 +275,7 @@ onMounted(async () => {
     );
   }
 });
+
 onBeforeUnmount(() => {
   socket.value.close();
 });
