@@ -3,13 +3,11 @@
     <q-card-section>
       <div
         class="text-h4 row items-center"
-        :class="tickerData?.chgAmt >= 0 ? 'redColor' : 'blueColor'"
+        :class="updn ? 'redColor' : 'blueColor'"
       >
         <span>{{ numberFormat(tickerData?.openPrice) }}</span>
-        <q-badge
-          :color="tickerData?.chgAmt >= 0 ? 'red-5' : 'primary'"
-          class="q-ml-sm"
-          >{{ tickerData?.chgAmt >= 0 ? "+" : ""
+        <q-badge :color="updn ? 'red-5' : 'primary'" class="q-ml-sm"
+          >{{ updn ? "+" : ""
           }}{{ numberFormat(tickerData?.chgRate) }} %</q-badge
         >
       </div>
@@ -61,6 +59,7 @@ const props = defineProps({
 
 const route = useRoute();
 const symbol = computed(() => route.params.symbol as string);
+const updn = computed(() => parseInt(props.tickerData?.chgAmt) >= 0);
 const chartData = ref<ChartData<"line">>({
   labels: [],
   datasets: [
