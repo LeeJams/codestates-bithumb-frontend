@@ -34,16 +34,26 @@
   <section class="row justify-center">
     <canvas id="myChart" width="1000" height="250"></canvas>
   </section>
-  <q-select
-    v-model="chartTime"
-    @update:model-value="changeChartTime"
-    :options="['1m', '3m', '5m', '10m', '30m', '1h', '6h', '12h', '24h']"
-    label="시간"
-    dark
-    outlined
-    style="max-width: 100px"
-    class="q-mt-sm"
-  />
+  <div class="row q-mt-sm q-mb-md">
+    <q-btn
+      label="초기화"
+      icon="restart_alt"
+      outline
+      class="col-1"
+      color="teal"
+      @click="redrawChart"
+    />
+    <q-select
+      v-model="chartTime"
+      @update:model-value="redrawChart"
+      :options="['1m', '3m', '5m', '10m', '30m', '1h', '6h', '12h', '24h']"
+      label="시간"
+      dark
+      outlined
+      style="max-width: 100px"
+      class="col-1 q-ml-md"
+    />
+  </div>
 </template>
 <script setup lang="ts">
 import { numberFormat } from "@/utils/common";
@@ -87,7 +97,7 @@ const chgRate = computed(
 const chartTime = ref("1m");
 const chartData = ref<ChartData[]>([]);
 
-const changeChartTime = () => {
+const redrawChart = () => {
   myChart.value.destroy();
   setChartData();
 };
@@ -97,7 +107,7 @@ const setChartData = async () => {
     `/candlestick/${route.params.symbol}_KRW/${chartTime.value}`
   );
 
-  chartData.value = result.data.slice(-300).map((n) => ({
+  chartData.value = result.data.slice(-500).map((n) => ({
     x: n[0],
     o: n[1],
     h: n[3],
@@ -131,7 +141,7 @@ const drewChart = () => {
     data: {
       datasets: [
         {
-          // borderColor: "#18181b",
+          // borderColor: "#009688",
           data: chartData.value,
         },
       ],

@@ -69,6 +69,6 @@ const columns: QTableProps["columns"] = [
 <style scoped>
 .q-table--dense .q-table th,
 .q-table--dense .q-table td {
-  width: 200px;
+  width: 180px;
 }
 </style>
