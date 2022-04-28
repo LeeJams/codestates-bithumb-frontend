@@ -1,5 +1,9 @@
 <template>
-  <q-card dark class="my-card q-pa-md" style="width: 350px; height: 100%">
+  <q-card
+    dark
+    class="my-card q-pa-md q-mb-xl"
+    style="width: 350px; height: 100%"
+  >
     <q-card-section>
       <div
         class="text-h4 row items-center"
