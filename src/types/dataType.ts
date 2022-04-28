@@ -39,6 +39,7 @@ export interface ConvertedTickerData {
   closePrice: string; // 종가
   chgRate: string; // 변동률
   chgAmt: string; // 변동금액
+  volume: string; // 누적거래량
 }
 
 export interface ChartData {

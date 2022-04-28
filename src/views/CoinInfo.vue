@@ -16,7 +16,8 @@
     />
     <ChartView :tickerData="tickerData" v-if="selectedChart === 'Chart.js'" />
     <ApexChart :tickerData="tickerData" v-else />
-    <section class="row justify-end q-mt-sm">
+    <section class="row justify-around q-mt-sm">
+      <DailyInfo :tickerData="tickerData" />
       <TransactionDataTable :transactionData="transactionData" />
       <OrderbookDataTable
         :askList="Object.entries(askList).slice(0, 10)"
@@ -39,12 +40,11 @@ import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import ChartView from "@/components/ChartView.vue";
 import ApexChart from "@/components/ApexChart.vue";
-import { numberFormat } from "@/utils/common";
-import HeaderInfo from "./coin-components/HeaderInfo.vue";
 import http from "@/utils/http";
+import DailyInfo from "./coin-components/DailyInfo.vue";
 import TransactionDataTable from "./coin-components/TransactionDataTable.vue";
 import OrderbookDataTable from "./coin-components/OrderbookDataTable.vue";
-import { COIN_NAME } from "@/utils/common";
+import { COIN_NAME, numberFormat } from "@/utils/common";
 
 const route = useRoute();
 const symbol = computed(() => route.params.symbol as string);
@@ -85,6 +85,7 @@ const setInitTickerData = async () => {
       closePrice: result.data.closing_price,
       chgRate: result.data.fluctate_rate_24H,
       chgAmt: result.data.fluctate_24H,
+      volume: result.data.acc_trade_value_24H,
     };
   } catch (e) {
     console.log(e);
@@ -142,7 +143,15 @@ const setSocketOrderbookData = (orderbooks: OrderbookContents[]) => {
 };
 
 const setSocketTickerData = (data: TickerContent) => {
-  const { lowPrice, highPrice, openPrice, closePrice, chgRate, chgAmt } = data;
+  const {
+    lowPrice,
+    highPrice,
+    openPrice,
+    closePrice,
+    chgRate,
+    chgAmt,
+    volume,
+  } = data;
   tickerData.value = {
     lowPrice,
     highPrice,
@@ -150,6 +159,7 @@ const setSocketTickerData = (data: TickerContent) => {
     closePrice,
     chgRate,
     chgAmt,
+    volume,
   };
 };
 

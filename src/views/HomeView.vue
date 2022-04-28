@@ -39,6 +39,7 @@
         :filter="filter"
         :pagination="pagination"
         style="height: 100%"
+        :loading="loading"
       >
         <template v-slot:header="props">
           <q-tr :props="props">
@@ -111,6 +112,7 @@ import type { QTableProps } from "quasar";
 
 const router = useRouter();
 const toggleView = ref(true);
+const loading = ref(false);
 
 const filter = ref("");
 const pagination = ref({ rowsPerPage: 0 });
@@ -263,6 +265,7 @@ const moveDetailPage = (row: CoinTableRowItems) => {
 
 onMounted(async () => {
   try {
+    loading.value = true;
     const types = await getAllCoinData();
     const ticker = JSON.stringify({
       type: "ticker",
@@ -276,6 +279,8 @@ onMounted(async () => {
     alert(
       "코인 정보를 가져오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요"
     );
+  } finally {
+    loading.value = false;
   }
 });
 

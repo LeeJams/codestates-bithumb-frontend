@@ -39,7 +39,6 @@
       label="초기화"
       icon="restart_alt"
       outline
-      class="col-1"
       color="teal"
       @click="redrawChart"
     />
@@ -47,11 +46,9 @@
       v-model="chartTime"
       @update:model-value="redrawChart"
       :options="['1m', '3m', '5m', '10m', '30m', '1h', '6h', '12h', '24h']"
-      label="시간"
       dark
       outlined
-      style="max-width: 100px"
-      class="col-1 q-ml-md"
+      class="q-ml-md"
     />
   </div>
 </template>
