@@ -5,6 +5,15 @@
     :options="options"
     :series="series"
   ></apexchart>
+  <q-select
+    v-model="chartTime"
+    @update:model-value="changeChart"
+    :options="['1m', '3m', '5m', '10m', '30m', '1h', '6h', '12h', '24h']"
+    dark
+    outlined
+    class="q-ml-md"
+    style="max-width: 100px"
+  />
 </template>
 <script setup lang="ts">
 import type {
@@ -12,7 +21,7 @@ import type {
   ConvertedTickerData,
 } from "@/types/dataType";
 import http from "@/utils/http";
-import { onMounted, ref, watchEffect } from "vue";
+import { onMounted, ref, onBeforeUnmount } from "vue";
 import type { PropType } from "vue-demi";
 import { useRoute } from "vue-router";
 const props = defineProps({
@@ -61,36 +70,36 @@ const series = ref<{ data: { x: Date; y: Array<string> }[] }[]>([
   },
 ]);
 
-const test = () => {
-  watchEffect(() => {
-    if (props.tickerData?.openPrice) {
-      series.value[0].data[series.value[0].data.length - 1] = {
-        x: new Date(),
-        y: [
-          props.tickerData.openPrice,
-          props.tickerData.highPrice,
-          props.tickerData.lowPrice,
-          props.tickerData.closePrice,
-        ],
-      };
-    }
-  });
+const chartTime = ref("1m");
+const intervalFn = ref();
+
+const changeChart = () => {
+  if (intervalFn.value) {
+    clearInterval(intervalFn.value);
+  }
+  setChartData();
+  intervalFn.value = setInterval(() => setChartData(), 5000);
 };
+
 const setChartData = async () => {
   const result: CandleStickChartData = await http.get(
-    `/candlestick/${route.params.symbol}_KRW/24h`
+    `/candlestick/${route.params.symbol}_KRW/${chartTime.value}`
   );
   series.value[0].data = result.data
     .map((n) => ({
       x: new Date(n[0]),
       y: [n[1], n[3], n[4], n[2]],
     }))
-    .slice(-30);
-
-  test();
+    .slice(-50);
 };
 
 onMounted(() => {
   setChartData();
+  intervalFn.value = setInterval(() => setChartData(), 5000);
+});
+onBeforeUnmount(() => {
+  if (intervalFn.value) {
+    clearInterval(intervalFn.value);
+  }
 });
 </script>

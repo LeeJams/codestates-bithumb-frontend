@@ -48,7 +48,13 @@ import type {
   ConvertedTickerData,
 } from "@/types/dataType";
 import { numberFormat } from "@/utils/common";
-import { onMounted, computed, ref, type PropType } from "vue-demi";
+import {
+  onMounted,
+  computed,
+  ref,
+  type PropType,
+  onBeforeUnmount,
+} from "vue-demi";
 import { LineChart } from "vue-chart-3";
 import { useRoute } from "vue-router";
 import http from "@/utils/http";
@@ -104,7 +110,7 @@ const options = ref({
 });
 const setChartData = async () => {
   const result: CandleStickChartData = await http.get(
-    `/candlestick/${route.params.symbol}_KRW/1m`
+    `/candlestick/${route.params.symbol}_KRW/10m`
   );
   chartData.value.labels = result.data
     .slice(-50)
@@ -119,12 +125,19 @@ const setChartData = async () => {
     .slice(-50)
     .map((n) => parseInt(n[1]));
 };
+
+const intervalFn = ref();
 const startInterval = () => {
-  setInterval(() => setChartData(), 60000);
+  intervalFn.value = setInterval(() => setChartData(), 60000);
 };
 
 onMounted(() => {
   setChartData();
   startInterval();
+});
+onBeforeUnmount(() => {
+  if (intervalFn.value) {
+    clearInterval(intervalFn.value);
+  }
 });
 </script>
