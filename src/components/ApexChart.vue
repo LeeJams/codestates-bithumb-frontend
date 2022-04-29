@@ -1,4 +1,36 @@
 <template>
+  <div>
+    <div
+      class="row justify-evenly"
+      :class="chgAmt > 0 ? 'redColor' : 'blueColor'"
+    >
+      <p>
+        <b>시 </b>
+        <span>{{ numberFormat(priceData[0]) }}</span
+        >원
+      </p>
+      <p>
+        <b>고 </b>
+        <span>{{ numberFormat(priceData[1]) }}</span
+        >원
+      </p>
+      <p>
+        <b>저 </b>
+        <span>{{ numberFormat(priceData[2]) }}</span
+        >원
+      </p>
+      <p>
+        <b>종 </b>
+        <span>{{ numberFormat(priceData[3]) }}</span
+        >원
+      </p>
+      <p>
+        <b>변동률 ({{ chartTime }}) </b>
+        <span>{{ numberFormat(chgAmt?.toString()) }}</span
+        >원 <span>({{ numberFormat(chgRate?.toString()) }}%)</span>
+      </p>
+    </div>
+  </div>
   <apexchart
     type="candlestick"
     height="350"
@@ -21,9 +53,10 @@ import type {
   ConvertedTickerData,
 } from "@/types/dataType";
 import http from "@/utils/http";
-import { onMounted, ref, onBeforeUnmount } from "vue";
+import { onMounted, ref, onBeforeUnmount, computed } from "vue";
 import type { PropType } from "vue-demi";
 import { useRoute } from "vue-router";
+import { numberFormat } from "@/utils/common";
 const props = defineProps({
   tickerData: {
     type: Object as PropType<ConvertedTickerData>,
@@ -69,6 +102,24 @@ const series = ref<{ data: { x: Date; y: Array<string> }[] }[]>([
     data: [],
   },
 ]);
+const priceData = computed(() => {
+  if (series.value[0]?.data[49]?.y) {
+    return series.value[0]?.data[49]?.y;
+  }
+  return ["0", "0", "0", "0"];
+});
+const chgAmt = computed(
+  () =>
+    Number(series.value[0]?.data[49]?.y[3]) -
+    Number(series.value[0]?.data[48]?.y[3])
+);
+const chgRate = computed(
+  () =>
+    ((Number(series.value[0]?.data[49]?.y[3]) -
+      Number(series.value[0]?.data[48]?.y[3])) /
+      Number(series.value[0]?.data[48]?.y[3])) *
+    100
+);
 
 const chartTime = ref("1m");
 const intervalFn = ref();
