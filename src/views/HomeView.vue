@@ -53,6 +53,7 @@
           <q-tr :props="props" style="cursor: pointer">
             <q-td auto-width>
               <q-checkbox
+                keep-color
                 v-model="selected"
                 checked-icon="star"
                 unchecked-icon="star_border"
