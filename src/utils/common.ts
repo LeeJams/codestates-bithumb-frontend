@@ -204,6 +204,8 @@ export const COIN_NAME: { [key: string]: string } = {
   T: "쓰레스홀드",
   SWAP: "트러스트스왑",
   PLA: "플레이댑",
+  SIX: "식스",
+  OGN: "오리진프로토콜",
 };
 
 export default {
